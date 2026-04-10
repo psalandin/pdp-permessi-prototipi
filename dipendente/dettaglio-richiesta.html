@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dettaglio Richiesta - PDP</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <script src="../assets/data.js"></script>
+  <style>
+    .demo-bar {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+    .demo-bar strong { color: #92400e; }
+    .demo-bar select {
+      width: auto;
+      flex: 1;
+      min-width: 250px;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    /* Header con titolo e stato grande affiancati */
+    .richiesta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .richiesta-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .stato-grande {
+      font-size: 22px;
+      font-weight: 700;
+      padding: 10px 22px;
+      border-radius: 10px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .stato-grande.badge-in_attesa { background: #fef3c7; color: #92400e; border: 2px solid #fbbf24; }
+    .stato-grande.badge-approvata { background: #d1fae5; color: #065f46; border: 2px solid #10b981; }
+    .stato-grande.badge-rifiutata { background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; }
+    .stato-grande.badge-lavorata  { background: #dbeafe; color: #1e40af; border: 2px solid #3b82f6; }
+    .stato-grande.badge-annullata { background: #e5e7eb; color: #4b5563; border: 2px solid #9ca3af; }
+
+    .richiesta-meta { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 24px;
+      padding: 20px;
+      background: #f8fafc;
+      border: 1px solid #dbe3ea;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .detail-grid .full { grid-column: 1 / -1; }
+    .detail-grid .value-large {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .info-box {
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      border-left: 4px solid;
+    }
+    .info-box h3 { margin-top: 0; margin-bottom: 12px; font-size: 16px; }
+
+    .info-box-approvata { background: #ecfdf5; border-color: #10b981; }
+    .info-box-approvata h3 { color: #065f46; }
+    .info-box-rifiutata { background: #fef2f2; border-color: #ef4444; }
+    .info-box-rifiutata h3 { color: #991b1b; }
+    .info-box-lavorata  { background: #eff6ff; border-color: #3b82f6; }
+    .info-box-lavorata h3 { color: #1e40af; }
+    .info-box-annullata { background: #f9fafb; border-color: #9ca3af; }
+    .info-box-annullata h3 { color: #4b5563; }
+
+    .info-box .detail-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .info-box .detail-row:last-child { margin-bottom: 0; }
+    .info-box .detail-row .label-inline { color: #6b7280; font-weight: 500; }
+    .info-box .detail-row .value-inline { color: #111827; }
+
+    .modifica-hint {
+      background: #eef4fa;
+      border: 1px solid #bfd4e6;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #0f4c81;
+      margin-bottom: 20px;
+    }
+
+    .actions-split {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .actions-split .actions-left,
+    .actions-split .actions-right {
+      display: flex;
+      gap: 10px;
+    }
+
+    .not-found {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 700px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .info-box .detail-row { grid-template-columns: 1fr; gap: 2px; }
+      .actions-split { flex-direction: column-reverse; align-items: stretch; }
+      .actions-split .actions-left,
+      .actions-split .actions-right { flex-direction: column; }
+      .stato-grande { font-size: 18px; padding: 8px 16px; }
+      .richiesta-header h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img class="header-logo" src="../assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Dettaglio Richiesta</h1>
+      <p>Area riservata dipendenti &middot; PDP Box Doccia</p>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="demo-bar">
+        <strong>Demo:</strong>
+        <span>scegli una richiesta &rarr;</span>
+        <select id="selettoreRichiesta" onchange="vaiARichiesta()">
+          <!-- Popolato da JS -->
+        </select>
+      </div>
+
+      <div id="contenutoRichiesta">
+        <!-- Popolato da JS in base all'ID corrente -->
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toIsoDate(d) {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function formatData(iso) {
+      const [y, m, d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function formatTipo(tipo) {
+      return tipo === 'giornata_intera' ? 'Giornata intera' : 'Permesso orario';
+    }
+
+    function formatDurata(ore) {
+      if (ore === 1) return '1 ora';
+      return `${ore.toString().replace('.', ',')} ore`;
+    }
+
+    function formatStato(stato) {
+      const mappa = {
+        in_attesa: 'In attesa',
+        approvata: 'Approvata',
+        rifiutata: 'Rifiutata',
+        lavorata: 'Lavorata',
+        annullata: 'Annullata',
+      };
+      return mappa[stato] || stato;
+    }
+
+    // =========================================================
+    // Popola il selettore demo con tutte le richieste disponibili
+    // =========================================================
+    function popolaSelettore(idCorrente) {
+      const sel = document.getElementById('selettoreRichiesta');
+      sel.innerHTML = window.RICHIESTE_DEMO.map(r => {
+        const label = `#${r.id} - ${formatStato(r.stato)}: ${r.motivazione} del ${formatData(r.data_sospensione)}${r.urgente ? ' [URG]' : ''}`;
+        const selected = r.id === idCorrente ? 'selected' : '';
+        return `<option value="${r.id}" ${selected}>${label}</option>`;
+      }).join('');
+    }
+
+    // Callback del select: cambia la query string e ricarica il contenuto
+    function vaiARichiesta() {
+      const id = parseInt(document.getElementById('selettoreRichiesta').value, 10);
+      // Aggiorno la query string senza ricaricare la pagina
+      const nuovoUrl = `${window.location.pathname}?id=${id}`;
+      window.history.replaceState({}, '', nuovoUrl);
+      renderRichiesta(id);
+    }
+
+    // =========================================================
+    // Render completo della richiesta
+    // =========================================================
+    function renderRichiesta(id) {
+      const r = window.RICHIESTE_DEMO.find(x => x.id === id);
+      const container = document.getElementById('contenutoRichiesta');
+
+      if (!r) {
+        container.innerHTML = `
+          <div class="not-found">
+            <h2>Richiesta non trovata</h2>
+            <p>L'ID richiesto non esiste nel dataset di esempio.</p>
+            <a href="storico.html" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
+          </div>
+        `;
+        return;
+      }
+
+      const isModifica = r.stato === 'in_attesa';
+
+      // Costruzione markup
+      let html = `
+        <div class="user-box">
+          <div class="user-grid">
+            <div>
+              <span class="label">Dipendente</span>
+              <div class="value">Mario Rossi</div>
+            </div>
+            <div>
+              <span class="label">Email</span>
+              <div class="value">m.rossi@pdpboxdoccia.com</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="richiesta-header">
+          <h2>Richiesta #${r.id}</h2>
+          <span class="stato-grande badge-${r.stato}">${formatStato(r.stato)}</span>
+        </div>
+        <div class="richiesta-meta">
+          Creata il ${formatData(r.data_creazione)} alle ${r.ora_creazione}
+        </div>
+      `;
+
+      if (isModifica) {
+        html += renderFormModifica(r);
+      } else {
+        html += renderSolaLettura(r);
+      }
+
+      container.innerHTML = html;
+
+      // Se è modifica, inizializzo i listener del form
+      if (isModifica) {
+        inizializzaFormModifica(r);
+      }
+    }
+
+    // =========================================================
+    // Render: form di modifica (stato in_attesa)
+    // =========================================================
+    function renderFormModifica(r) {
+      const motivazioni = ['Permesso personale', 'Donazione sangue', 'Legge 104', 'Paternità/Maternità', 'Lutto'];
+      const options = motivazioni.map(m => `<option ${m === r.motivazione ? 'selected' : ''}>${m}</option>`).join('');
+
+      const oreInizio = [];
+      const oreFine = [];
+      for (let h = 8; h <= 18; h++) {
+        for (let m of [0, 30]) {
+          if (h === 18 && m === 30) continue;
+          const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+          oreInizio.push(`<option ${val === r.ora_inizio ? 'selected' : ''}>${val}</option>`);
+        }
+      }
+      for (let h = 8; h <= 18; h++) {
+        for (let m of [0, 30]) {
+          if (h === 8 && m === 0) continue;
+          const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+          oreFine.push(`<option ${val === r.ora_fine ? 'selected' : ''}>${val}</option>`);
+        }
+      }
+
+      return `
+        <div class="modifica-hint">
+          Questa richiesta è in attesa di decisione: puoi modificarla o annullarla finché il direttore non si sarà espresso.
+        </div>
+
+        <form onsubmit="event.preventDefault(); alert('Prototipo: modifiche salvate');">
+          <div class="form-grid">
+
+            <div class="full">
+              <label class="label" for="motivazione">Motivazione</label>
+              <select id="motivazione" required>
+                <option value="">Seleziona una motivazione</option>
+                ${options}
+              </select>
+            </div>
+
+            <div class="full">
+              <label class="label" for="data">Data del permesso</label>
+              <input type="date" id="data" value="${r.data_sospensione}" />
+              <div class="hint">Sono selezionabili solo date a partire da 5 giorni dopo la richiesta, salvo urgenza.</div>
+            </div>
+
+            <div class="full">
+              <label class="label">Tipo di permesso</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="tipo_permesso" value="giornata_intera" ${r.tipo === 'giornata_intera' ? 'checked' : ''} onchange="toggleOrario()" />
+                  <span>Giornata intera</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="tipo_permesso" value="permesso_orario" ${r.tipo === 'permesso_orario' ? 'checked' : ''} onchange="toggleOrario()" />
+                  <span>Permesso orario</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="full">
+              <div id="orarioFields" class="orario-fields ${r.tipo === 'permesso_orario' ? 'visible' : ''}">
+                <div>
+                  <label class="label" for="ora_inizio">Ora inizio</label>
+                  <select id="ora_inizio" onchange="calcolaDurata()">
+                    <option value="">--</option>
+                    ${oreInizio.join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="label" for="ora_fine">Ora fine</label>
+                  <select id="ora_fine" onchange="calcolaDurata()">
+                    <option value="">--</option>
+                    ${oreFine.join('')}
+                  </select>
+                </div>
+                <div class="durata-calcolata">
+                  <label class="label">Durata calcolata</label>
+                  <div class="durata-value" id="durataValue">&mdash;</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="full flag-box">
+              <label>
+                <input type="checkbox" id="urgente" ${r.urgente ? 'checked' : ''} onchange="toggleUrgenza()" />
+                Richiesta urgente per causa di forza maggiore
+              </label>
+              <div class="hint">Attivando questa opzione, la richiesta verrà evidenziata come straordinaria e il vincolo dei 5 giorni non sarà applicato.</div>
+            </div>
+
+            <div class="full">
+              <label class="label" for="note">Note aggiuntive (facoltative)</label>
+              <textarea id="note" placeholder="Inserire eventuali dettagli utili...">${r.note || ''}</textarea>
+            </div>
+          </div>
+
+          <div class="actions-split">
+            <div class="actions-left">
+              <button type="button" class="btn btn-danger" onclick="if(confirm('Confermi l\\'annullamento della richiesta?')) alert('Prototipo: richiesta annullata');">Annulla richiesta</button>
+            </div>
+            <div class="actions-right">
+              <a href="storico.html" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
+              <button type="submit" class="btn btn-primary">Salva modifiche</button>
+            </div>
+          </div>
+        </form>
+      `;
+    }
+
+    // =========================================================
+    // Render: vista sola lettura (stati diversi da in_attesa)
+    // =========================================================
+    function renderSolaLettura(r) {
+      let html = `
+        <div class="detail-grid">
+          <div>
+            <span class="label">Motivazione</span>
+            <div class="value-large">${r.motivazione}</div>
+          </div>
+          <div>
+            <span class="label">Data del permesso</span>
+            <div class="value-large">${formatData(r.data_sospensione)}</div>
+          </div>
+          <div>
+            <span class="label">Tipo permesso</span>
+            <div class="value-large">${formatTipo(r.tipo)}</div>
+          </div>
+          <div>
+            <span class="label">Durata</span>
+            <div class="value-large">${formatDurata(r.durata)}</div>
+          </div>
+          ${r.tipo === 'permesso_orario' ? `
+          <div class="full">
+            <span class="label">Orario</span>
+            <div class="value-large">dalle ${r.ora_inizio} alle ${r.ora_fine}</div>
+          </div>` : ''}
+          ${r.urgente ? `
+          <div class="full">
+            <span class="label">Urgenza</span>
+            <div class="value-large" style="color: #c2410c;">Richiesta urgente per causa di forza maggiore</div>
+          </div>` : ''}
+          <div class="full">
+            <span class="label">Note del dipendente</span>
+            <div class="value-large" style="font-weight: normal;">${r.note || '—'}</div>
+          </div>
+        </div>
+      `;
+
+      // Box annullata
+      if (r.stato === 'annullata') {
+        html += `
+          <div class="info-box info-box-annullata">
+            <h3>Richiesta annullata</h3>
+            <div class="detail-row">
+              <span class="label-inline">Annullata dal dipendente</span>
+              <span class="value-inline">prima che venisse presa una decisione</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Box decisione
+      if (r.decisione) {
+        const cls = r.decisione.esito === 'approvata' ? 'info-box-approvata' : 'info-box-rifiutata';
+        const titolo = r.decisione.esito === 'approvata' ? 'Richiesta approvata' : 'Richiesta rifiutata';
+        html += `
+          <div class="info-box ${cls}">
+            <h3>${titolo}</h3>
+            <div class="detail-row">
+              <span class="label-inline">Decisa da</span>
+              <span class="value-inline">${r.decisione.direttore}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label-inline">Data decisione</span>
+              <span class="value-inline">${formatData(r.decisione.data)} alle ${r.decisione.ora}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label-inline">Causale</span>
+              <span class="value-inline"><strong>${r.decisione.causale}</strong></span>
+            </div>
+            ${r.decisione.note ? `
+            <div class="detail-row">
+              <span class="label-inline">Note del direttore</span>
+              <span class="value-inline">${r.decisione.note}</span>
+            </div>` : ''}
+          </div>
+        `;
+      }
+
+      // Box lavorazione
+      if (r.lavorazione) {
+        const esitoLabel = r.lavorazione.esito_marcatempo === 'confermata'
+          ? 'Confermata con marcatempo'
+          : 'Discrepanza con marcatempo';
+        html += `
+          <div class="info-box info-box-lavorata">
+            <h3>Lavorazione amministrativa</h3>
+            <div class="detail-row">
+              <span class="label-inline">Lavorata da</span>
+              <span class="value-inline">${r.lavorazione.operatore}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label-inline">Data lavorazione</span>
+              <span class="value-inline">${formatData(r.lavorazione.data)} alle ${r.lavorazione.ora}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label-inline">Esito marcatempo</span>
+              <span class="value-inline"><strong>${esitoLabel}</strong></span>
+            </div>
+            ${r.lavorazione.note ? `
+            <div class="detail-row">
+              <span class="label-inline">Note</span>
+              <span class="value-inline">${r.lavorazione.note}</span>
+            </div>` : ''}
+          </div>
+        `;
+      }
+
+      // Azioni
+      html += `
+        <div class="actions">
+          <a href="storico.html" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
+        </div>
+      `;
+
+      return html;
+    }
+
+    // =========================================================
+    // Funzioni form modifica (inizializzate dopo il render)
+    // =========================================================
+    const DATA_MIN_OGGI = toIsoDate(new Date());
+    const DATA_MIN_STANDARD = (() => {
+      const d = new Date();
+      d.setDate(d.getDate() + 5);
+      return toIsoDate(d);
+    })();
+
+    function inizializzaFormModifica(r) {
+      // Imposto il min della data in base allo stato dell'urgenza
+      toggleUrgenza();
+      // Se è un permesso orario, calcolo la durata iniziale
+      if (r.tipo === 'permesso_orario') {
+        calcolaDurata();
+      }
+    }
+
+    function toggleUrgenza() {
+      const urgEl = document.getElementById('urgente');
+      if (!urgEl) return;
+      const urgente = urgEl.checked;
+      const dataInput = document.getElementById('data');
+      const nuovoMin = urgente ? DATA_MIN_OGGI : DATA_MIN_STANDARD;
+      dataInput.setAttribute('min', nuovoMin);
+      if (dataInput.value && dataInput.value < nuovoMin) {
+        dataInput.value = '';
+      }
+    }
+
+    function toggleOrario() {
+      const tipoEl = document.querySelector('input[name="tipo_permesso"]:checked');
+      if (!tipoEl) return;
+      const tipo = tipoEl.value;
+      const fields = document.getElementById('orarioFields');
+      if (tipo === 'permesso_orario') {
+        fields.classList.add('visible');
+      } else {
+        fields.classList.remove('visible');
+        document.getElementById('ora_inizio').value = '';
+        document.getElementById('ora_fine').value = '';
+        document.getElementById('durataValue').innerHTML = '&mdash;';
+      }
+    }
+
+    function calcolaDurata() {
+      const inizio = document.getElementById('ora_inizio').value;
+      const fine = document.getElementById('ora_fine').value;
+      const out = document.getElementById('durataValue');
+
+      if (!inizio || !fine) {
+        out.innerHTML = '&mdash;';
+        return;
+      }
+
+      const [hi, mi] = inizio.split(':').map(Number);
+      const [hf, mf] = fine.split(':').map(Number);
+      const minuti = (hf * 60 + mf) - (hi * 60 + mi);
+
+      if (minuti <= 0) {
+        out.textContent = 'Orario non valido';
+        out.style.color = '#b91c1c';
+        return;
+      }
+
+      const ore = minuti / 60;
+      out.style.color = '';
+      out.textContent = ore === 1 ? '1 ora' : `${ore.toString().replace('.', ',')} ore`;
+    }
+
+    // =========================================================
+    // Avvio
+    // =========================================================
+    (function init() {
+      // Leggo l'ID dalla query string, con fallback alla prima richiesta
+      const params = new URLSearchParams(window.location.search);
+      const idParam = parseInt(params.get('id'), 10);
+      const idIniziale = !isNaN(idParam) ? idParam : window.RICHIESTE_DEMO[0].id;
+
+      popolaSelettore(idIniziale);
+      renderRichiesta(idIniziale);
+    })();
+  </script>
+</body>
+</html>

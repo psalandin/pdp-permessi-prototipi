@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dettaglio Richiesta - Amministrazione - PDP</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <script src="../assets/data.js"></script>
+  <style>
+    .demo-bar {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+    .demo-bar strong { color: #92400e; }
+    .demo-bar select {
+      width: auto;
+      flex: 1;
+      min-width: 250px;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    .nav-secondaria {
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+    }
+
+    .nav-secondaria a {
+      color: #6b7280;
+      text-decoration: none;
+      padding: 6px 0;
+    }
+
+    .nav-secondaria a:hover { color: #0f4c81; }
+
+    .richiesta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .richiesta-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .stato-grande {
+      font-size: 22px;
+      font-weight: 700;
+      padding: 10px 22px;
+      border-radius: 10px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .stato-grande.badge-in_attesa { background: #fef3c7; color: #92400e; border: 2px solid #fbbf24; }
+    .stato-grande.badge-approvata { background: #d1fae5; color: #065f46; border: 2px solid #10b981; }
+    .stato-grande.badge-rifiutata { background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; }
+    .stato-grande.badge-lavorata  { background: #dbeafe; color: #1e40af; border: 2px solid #3b82f6; }
+    .stato-grande.badge-annullata { background: #e5e7eb; color: #4b5563; border: 2px solid #9ca3af; }
+
+    .richiesta-meta { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+
+    .dipendente-box {
+      background: #f8fafc;
+      border: 1px solid #dbe3ea;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+
+    .dipendente-box h3 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .dipendente-box .dip-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px 20px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 24px;
+      padding: 20px;
+      background: #f8fafc;
+      border: 1px solid #dbe3ea;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .detail-grid .full { grid-column: 1 / -1; }
+    .detail-grid .value-large {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .info-box {
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      border-left: 4px solid;
+    }
+    .info-box h3 { margin-top: 0; margin-bottom: 12px; font-size: 16px; }
+
+    .info-box-approvata { background: #ecfdf5; border-color: #10b981; }
+    .info-box-approvata h3 { color: #065f46; }
+    .info-box-rifiutata { background: #fef2f2; border-color: #ef4444; }
+    .info-box-rifiutata h3 { color: #991b1b; }
+    .info-box-lavorata  { background: #eff6ff; border-color: #3b82f6; }
+    .info-box-lavorata h3 { color: #1e40af; }
+
+    .info-box .detail-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .info-box .detail-row:last-child { margin-bottom: 0; }
+    .info-box .detail-row .label-inline { color: #6b7280; font-weight: 500; }
+    .info-box .detail-row .value-inline { color: #111827; }
+
+    /* Form lavorazione */
+    .lavorazione-form {
+      background: #eff6ff;
+      border: 2px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .lavorazione-form h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: #1e40af;
+      font-size: 18px;
+    }
+
+    .esito-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .esito-option {
+      flex: 1;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      background: white;
+      transition: all 0.15s ease;
+      text-align: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .esito-option input[type="radio"] { display: none; }
+
+    .esito-option.confermata { color: #065f46; }
+    .esito-option.discrepanza { color: #92400e; }
+
+    .esito-option:hover { background: #f8fafc; }
+
+    .esito-option:has(input[type="radio"]:checked).confermata {
+      background: #d1fae5;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+
+    .esito-option:has(input[type="radio"]:checked).discrepanza {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    }
+
+    .lavorazione-field { margin-bottom: 16px; }
+
+    .actions-split {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .actions-split .actions-left,
+    .actions-split .actions-right {
+      display: flex;
+      gap: 10px;
+    }
+
+    .not-found {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+    }
+
+    .info-non-lavorabile {
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 16px 18px;
+      color: #4b5563;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .detail-grid { grid-template-columns: 1fr; }
+      .dipendente-box .dip-grid { grid-template-columns: 1fr; }
+      .info-box .detail-row { grid-template-columns: 1fr; gap: 2px; }
+      .esito-group { flex-direction: column; }
+      .actions-split { flex-direction: column-reverse; align-items: stretch; }
+      .stato-grande { font-size: 18px; padding: 8px 16px; }
+      .richiesta-header h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img class="header-logo" src="../assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Dettaglio Richiesta</h1>
+      <p>Giulia Neri &middot; Amministrazione &middot; PDP Box Doccia</p>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <nav class="nav-secondaria">
+        <a href="dashboard.html">&larr; Da lavorare</a>
+        <a href="ricerca.html">Ricerca avanzata</a>
+      </nav>
+
+      <div class="demo-bar">
+        <strong>Demo:</strong>
+        <span>scegli una richiesta &rarr;</span>
+        <select id="selettoreRichiesta" onchange="vaiARichiesta()">
+          <!-- Popolato da JS -->
+        </select>
+      </div>
+
+      <div id="contenutoRichiesta">
+        <!-- Popolato da JS in base all'ID corrente -->
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function formatData(iso) {
+      const [y, m, d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function formatTipo(tipo) {
+      return tipo === 'giornata_intera' ? 'Giornata intera' : 'Permesso orario';
+    }
+
+    function formatDurata(ore) {
+      if (ore === 1) return '1 ora';
+      return `${ore.toString().replace('.', ',')} ore`;
+    }
+
+    function formatStato(stato) {
+      const mappa = {
+        in_attesa: 'In attesa',
+        approvata: 'Approvata',
+        rifiutata: 'Rifiutata',
+        lavorata: 'Lavorata',
+        annullata: 'Annullata',
+      };
+      return mappa[stato] || stato;
+    }
+
+    // =========================================================
+    // Selettore demo
+    // =========================================================
+    function popolaSelettore(idCorrente) {
+      const sel = document.getElementById('selettoreRichiesta');
+      sel.innerHTML = window.RICHIESTE_DEMO.map(r => {
+        const dip = window.getDipendente(r.dipendente_id) || { nome: '?' };
+        const label = `#${r.id} - ${dip.nome} - ${formatStato(r.stato)}: ${r.motivazione} del ${formatData(r.data_sospensione)}${r.urgente ? ' [URG]' : ''}`;
+        const selected = r.id === idCorrente ? 'selected' : '';
+        return `<option value="${r.id}" ${selected}>${label}</option>`;
+      }).join('');
+    }
+
+    function vaiARichiesta() {
+      const id = parseInt(document.getElementById('selettoreRichiesta').value, 10);
+      const nuovoUrl = `${window.location.pathname}?id=${id}`;
+      window.history.replaceState({}, '', nuovoUrl);
+      renderRichiesta(id);
+    }
+
+    // =========================================================
+    // Render della richiesta
+    // =========================================================
+    function renderRichiesta(id) {
+      const r = window.RICHIESTE_DEMO.find(x => x.id === id);
+      const container = document.getElementById('contenutoRichiesta');
+
+      if (!r) {
+        container.innerHTML = `
+          <div class="not-found">
+            <h2>Richiesta non trovata</h2>
+            <p>L'ID richiesto non esiste nel dataset di esempio.</p>
+            <a href="dashboard.html" class="btn btn-secondary" style="text-decoration: none;">Torna alla dashboard</a>
+          </div>
+        `;
+        return;
+      }
+
+      const dip = window.getDipendente(r.dipendente_id) || { nome: '?', email: '?', reparto: '?' };
+      // L'amministrazione può lavorare solo le richieste in stato 'approvata' (cioè non ancora lavorate)
+      const isLavorabile = r.stato === 'approvata';
+
+      let html = `
+        <div class="richiesta-header">
+          <h2>Richiesta #${r.id}</h2>
+          <span class="stato-grande badge-${r.stato}">${formatStato(r.stato)}</span>
+        </div>
+        <div class="richiesta-meta">
+          Creata il ${formatData(r.data_creazione)} alle ${r.ora_creazione}
+        </div>
+
+        <div class="dipendente-box">
+          <h3>Richiedente</h3>
+          <div class="dip-grid">
+            <div>
+              <span class="label">Nome</span>
+              <div class="value">${dip.nome}</div>
+            </div>
+            <div>
+              <span class="label">Email</span>
+              <div class="value">${dip.email}</div>
+            </div>
+            <div>
+              <span class="label">Reparto</span>
+              <div class="value">${dip.reparto}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <span class="label">Motivazione</span>
+            <div class="value-large">${r.motivazione}</div>
+          </div>
+          <div>
+            <span class="label">Data del permesso</span>
+            <div class="value-large">${formatData(r.data_sospensione)}</div>
+          </div>
+          <div>
+            <span class="label">Tipo permesso</span>
+            <div class="value-large">${formatTipo(r.tipo)}</div>
+          </div>
+          <div>
+            <span class="label">Durata</span>
+            <div class="value-large">${formatDurata(r.durata)}</div>
+          </div>
+          ${r.tipo === 'permesso_orario' ? `
+          <div class="full">
+            <span class="label">Orario</span>
+            <div class="value-large">dalle ${r.ora_inizio} alle ${r.ora_fine}</div>
+          </div>` : ''}
+          ${r.urgente ? `
+          <div class="full">
+            <span class="label">Urgenza</span>
+            <div class="value-large" style="color: #c2410c;">Richiesta urgente per causa di forza maggiore</div>
+          </div>` : ''}
+          <div class="full">
+            <span class="label">Note del dipendente</span>
+            <div class="value-large" style="font-weight: normal;">${r.note || '—'}</div>
+          </div>
+        </div>
+      `;
+
+      // Decisione del direttore (sempre presente per le richieste approvate/rifiutate/lavorate)
+      if (r.decisione) {
+        const cls = r.decisione.esito === 'approvata' ? 'info-box-approvata' : 'info-box-rifiutata';
+        const titolo = r.decisione.esito === 'approvata' ? 'Approvata dal direttore' : 'Rifiutata dal direttore';
+        html += `
+          <div class="info-box ${cls}">
+            <h3>${titolo}</h3>
+            <div class="detail-row">
+              <span class="label-inline">Decisa da</span>
+              <span class="value-inline">${r.decisione.direttore}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label-inline">Data decisione</span>
+              <span class="value-inline">${formatData(r.decisione.data)} alle ${r.decisione.ora}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label-inline">Causale</span>
+              <span class="value-inline"><strong>${r.decisione.causale}</strong></span>
+            </div>
+            ${r.decisione.note ? `
+            <div class="detail-row">
+              <span class="label-inline">Note del direttore</span>
+              <span class="value-inline">${r.decisione.note}</span>
+            </div>` : ''}
+          </div>
+        `;
+      }
+
+      // Form di riscontro o box lavorazione già presente
+      if (isLavorabile) {
+        html += renderFormLavorazione();
+      } else if (r.lavorazione) {
+        html += renderBoxLavorazione(r);
+      } else {
+        // Stati non lavorabili e senza lavorazione: rifiutata, in_attesa, annullata
+        html += renderInfoNonLavorabile(r);
+      }
+
+      // Bottone "Torna alla dashboard"
+      if (!isLavorabile) {
+        html += `
+          <div class="actions">
+            <a href="dashboard.html" class="btn btn-secondary" style="text-decoration: none;">Torna alla dashboard</a>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // =========================================================
+    // Form lavorazione (visibile solo per stato 'approvata')
+    // =========================================================
+    function renderFormLavorazione() {
+      return `
+        <div class="lavorazione-form">
+          <h3>Riscontro marcatempo</h3>
+
+          <form onsubmit="event.preventDefault(); confermaLavorazione();">
+            <div class="esito-group">
+              <label class="esito-option confermata">
+                <input type="radio" name="esito" value="confermata" />
+                ✓ Confermata con marcatempo
+              </label>
+              <label class="esito-option discrepanza">
+                <input type="radio" name="esito" value="discrepanza" />
+                ⚠ Discrepanza con marcatempo
+              </label>
+            </div>
+
+            <div class="lavorazione-field">
+              <label class="label" for="noteLavorazione">Note (facoltative)</label>
+              <textarea id="noteLavorazione" placeholder="Eventuali dettagli sul riscontro o sulla discrepanza..."></textarea>
+              <div class="hint">In caso di discrepanza è consigliabile descrivere brevemente il problema riscontrato.</div>
+            </div>
+
+            <div class="actions-split">
+              <div class="actions-left">
+                <a href="dashboard.html" class="btn btn-secondary" style="text-decoration: none;">Torna alla dashboard</a>
+              </div>
+              <div class="actions-right">
+                <button type="submit" class="btn btn-primary">Conferma riscontro</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      `;
+    }
+
+    // =========================================================
+    // Box lavorazione già fatta (per richieste in stato 'lavorata')
+    // =========================================================
+    function renderBoxLavorazione(r) {
+      const esitoLabel = r.lavorazione.esito_marcatempo === 'confermata'
+        ? 'Confermata con marcatempo'
+        : 'Discrepanza con marcatempo';
+      return `
+        <div class="info-box info-box-lavorata">
+          <h3>Lavorazione amministrativa</h3>
+          <div class="detail-row">
+            <span class="label-inline">Lavorata da</span>
+            <span class="value-inline">${r.lavorazione.operatore}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label-inline">Data lavorazione</span>
+            <span class="value-inline">${formatData(r.lavorazione.data)} alle ${r.lavorazione.ora}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label-inline">Esito marcatempo</span>
+            <span class="value-inline"><strong>${esitoLabel}</strong></span>
+          </div>
+          ${r.lavorazione.note ? `
+          <div class="detail-row">
+            <span class="label-inline">Note</span>
+            <span class="value-inline">${r.lavorazione.note}</span>
+          </div>` : ''}
+        </div>
+      `;
+    }
+
+    // =========================================================
+    // Info per stati non lavorabili
+    // =========================================================
+    function renderInfoNonLavorabile(r) {
+      let msg = '';
+      switch (r.stato) {
+        case 'in_attesa':
+          msg = 'Questa richiesta non è ancora stata decisa dal direttore di produzione, quindi non è lavorabile dall\'amministrazione.';
+          break;
+        case 'rifiutata':
+          msg = 'Questa richiesta è stata rifiutata dal direttore di produzione, quindi non richiede alcun riscontro.';
+          break;
+        case 'annullata':
+          msg = 'Questa richiesta è stata annullata dal dipendente prima della decisione, quindi non richiede alcun riscontro.';
+          break;
+      }
+      return `<div class="info-non-lavorabile">${msg}</div>`;
+    }
+
+    // =========================================================
+    // Conferma lavorazione
+    // =========================================================
+    function confermaLavorazione() {
+      const esito = document.querySelector('input[name="esito"]:checked');
+      if (!esito) {
+        alert('Seleziona un esito (confermata o discrepanza) prima di proseguire.');
+        return;
+      }
+
+      const note = document.getElementById('noteLavorazione').value.trim();
+      const esitoLabel = esito.value === 'confermata' ? 'Confermata' : 'Discrepanza';
+
+      let msg = `Stai per registrare il riscontro:\n\nEsito: ${esitoLabel}`;
+      if (note) msg += `\nNote: ${note}`;
+      msg += '\n\nConfermi?';
+
+      if (confirm(msg)) {
+        alert('Riscontro registrato. Nel sistema vero:\n- la richiesta passerebbe in stato "lavorata"\n- scomparirebbe dalla lista delle richieste da lavorare\n- torneresti alla dashboard.');
+        window.location.href = 'dashboard.html';
+      }
+    }
+
+    // =========================================================
+    // Avvio
+    // =========================================================
+    (function init() {
+      const params = new URLSearchParams(window.location.search);
+      const idParam = parseInt(params.get('id'), 10);
+      // Default: prima richiesta in stato 'approvata' (la prima lavorabile)
+      const idDefault = (window.RICHIESTE_DEMO.find(r => r.stato === 'approvata') || window.RICHIESTE_DEMO[0]).id;
+      const idIniziale = !isNaN(idParam) ? idParam : idDefault;
+
+      popolaSelettore(idIniziale);
+      renderRichiesta(idIniziale);
+    })();
+  </script>
+</body>
+</html>

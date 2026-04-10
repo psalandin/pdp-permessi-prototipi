@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verifica codice - PDP Permessi</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="assets/data.js"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      max-width: 460px;
+      width: 100%;
+      margin: 0;
+    }
+
+    .login-header {
+      background: #0f4c81;
+      color: white;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .login-header h1 { margin: 0 0 6px 0; font-size: 26px; }
+    .login-header p { margin: 0; opacity: 0.95; font-size: 14px; }
+
+    .login-content { padding: 32px; }
+
+    .login-content h2 {
+      margin-top: 0;
+      margin-bottom: 6px;
+      font-size: 22px;
+    }
+
+    .login-subtitle {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .email-display {
+      background: #f8fafc;
+      border: 1px solid #dbe3ea;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .email-display strong { color: #0f4c81; }
+
+    .error-box {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .error-box.visible { display: block; }
+
+    .login-field { margin-bottom: 16px; }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    .link-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .link-row a { color: #6b7280; }
+
+    .scadenza-nota {
+      text-align: center;
+      font-size: 13px;
+      color: #6b7280;
+      padding-top: 18px;
+      margin-top: 18px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .login-demo-bar {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #92400e;
+    }
+
+    .login-demo-bar strong { color: #78350f; }
+
+    .login-demo-bar code {
+      background: rgba(146, 64, 14, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    #codice {
+      text-align: center;
+      font-size: 22px;
+      letter-spacing: 10px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container login-container">
+    <div class="login-header">
+      <img src="assets/logo.svg" alt="PDP" style="width:48px;height:48px;display:block;margin:0 auto 10px auto;"/>
+      <h1>PDP Permessi</h1>
+      <p>PDP Box Doccia</p>
+    </div>
+
+    <div class="login-content">
+
+      <div class="login-demo-bar">
+        <strong>Demo:</strong> codice corretto = <code>123456</code>. Qualsiasi altro valore mostra l'errore.
+      </div>
+
+      <h2>Verifica codice</h2>
+      <p class="login-subtitle">
+        Abbiamo inviato un codice di verifica a 6 cifre al tuo indirizzo email. Inseriscilo qui sotto per completare l'accesso.
+      </p>
+
+      <div class="email-display">
+        Codice inviato a <strong id="emailDisplay">—</strong>
+      </div>
+
+      <div class="error-box" id="errorBox">
+        Codice non valido o scaduto. Riprova o richiedi un nuovo codice.
+      </div>
+
+      <form onsubmit="event.preventDefault(); verificaCodice();">
+        <div class="login-field">
+          <label class="label" for="codice">Codice di verifica</label>
+          <input type="text" id="codice" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required placeholder="&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="one-time-code" />
+          <div class="hint">6 cifre numeriche</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-login">Verifica e accedi</button>
+      </form>
+
+      <div class="link-row">
+        <a href="#" onclick="event.preventDefault(); alert('Prototipo: nuovo codice inviato');">Invia di nuovo il codice</a>
+        <a href="login.html">Torna al login</a>
+      </div>
+
+      <div class="scadenza-nota">
+        Il codice scade dopo 10 minuti dall'invio.
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const CODICE_CORRETTO = '123456';
+
+    // Leggo email e ruolo dalla query string
+    const params = new URLSearchParams(window.location.search);
+    const emailUtente = params.get('email') || 'utente@pdpboxdoccia.com';
+    const ruoloUtente = params.get('ruolo') || 'dipendente';
+
+    // Mostro l'email nella pagina
+    document.getElementById('emailDisplay').textContent = emailUtente;
+
+    function verificaCodice() {
+      const codice = document.getElementById('codice').value;
+      const errorBox = document.getElementById('errorBox');
+
+      if (codice !== CODICE_CORRETTO) {
+        errorBox.classList.add('visible');
+        document.getElementById('codice').value = '';
+        document.getElementById('codice').focus();
+        return;
+      }
+
+      errorBox.classList.remove('visible');
+      redirectPerRuolo(ruoloUtente);
+    }
+
+    function redirectPerRuolo(ruolo) {
+      switch (ruolo) {
+        case 'dipendente':
+          window.location.href = 'dipendente/storico.html';
+          break;
+        case 'direttore':
+          window.location.href = 'direttore/dashboard.html';
+          break;
+        case 'amministrazione':
+          window.location.href = 'amministrazione/dashboard.html';
+          break;
+        case 'supervisore':
+          window.location.href = 'supervisore/coda-email.html';
+          break;
+        default:
+          window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>

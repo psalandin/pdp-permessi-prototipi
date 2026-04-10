@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Coda email - Supervisore - PDP</title><link rel="stylesheet" href="../assets/style.css"/><script src="../assets/data.js"></script><style>
+.nav-secondaria{margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid #e5e7eb;display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
+.nav-secondaria a{color:#6b7280;text-decoration:none;padding:6px 0}
+.nav-secondaria a.attivo{color:#0f4c81;font-weight:600;border-bottom:2px solid #0f4c81}
+.nav-secondaria a:hover{color:#0f4c81}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.tab{width:100%;border-collapse:collapse;font-size:14px}
+.tab thead th{text-align:left;padding:12px 10px;background:#f8fafc;border-bottom:2px solid #dbe3ea;font-weight:600;color:#374151;white-space:nowrap}
+.tab tbody td{padding:12px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
+.tab tbody tr:hover{background:#f8fafc}
+.action-link{color:#0f4c81;text-decoration:none;font-weight:500;font-size:13px;margin-right:10px;cursor:pointer;background:none;border:none;padding:0;font-family:inherit}
+.action-link:hover{text-decoration:underline}
+.action-link.danger{color:#b91c1c}
+.empty-state{text-align:center;padding:40px 20px;color:#6b7280}
+.contatori{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.contatore{flex:1;min-width:140px;background:#f8fafc;border:1px solid #dbe3ea;border-radius:10px;padding:14px 16px;text-align:center}
+.contatore .num{font-size:26px;font-weight:700;color:#0f4c81;line-height:1;margin-bottom:4px}
+.contatore .lab{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.4px}
+.contatore.fallita .num{color:#b91c1c}
+.contatore.creata .num{color:#92400e}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.visible{display:flex}
+.modal{background:white;border-radius:14px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,0.3)}
+.modal-header{padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{margin:0;font-size:18px}
+.modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:#6b7280;line-height:1;padding:0 4px}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px}
+.field{margin-bottom:16px}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.tag-attivo{background:#d1fae5;color:#065f46}
+.tag-inattivo{background:#e5e7eb;color:#4b5563}
+.tag-creata{background:#fef3c7;color:#92400e}
+.tag-inviata{background:#d1fae5;color:#065f46}
+.tag-fallita{background:#fee2e2;color:#991b1b}
+.tag-tipo{background:#eff6ff;color:#1e40af;text-transform:none;font-size:11px}
+@media(max-width:700px){.tab{font-size:13px}.tab thead th,.tab tbody td{padding:10px 6px}}
+
+</style></head><body><div class="container container-wide"><div class="header">
+      <img class="header-logo" src="../assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Supervisore</h1><p>Sandro Costa &middot; Sistemi &middot; PDP Box Doccia</p>
+      </div>
+    </div><div class="content">
+<nav class="nav-secondaria"><a href="coda-email.html" class="attivo">Coda email</a><a href="utenti.html">Utenti</a><a href="motivazioni.html">Motivazioni</a><a href="causali.html">Causali</a></nav>
+<h2 style="margin:0 0 16px 0;">Coda email</h2>
+<div class="contatori"><div class="contatore creata"><div class="num" id="cn-creata">0</div><div class="lab">In coda</div></div><div class="contatore"><div class="num" id="cn-inviata">0</div><div class="lab">Inviate</div></div><div class="contatore fallita"><div class="num" id="cn-fallita">0</div><div class="lab">Fallite</div></div><div class="contatore"><div class="num" id="cn-totale">0</div><div class="lab">Totale</div></div></div>
+<div class="toolbar"><div><label class="label" for="filtroStato">Filtra per stato</label><select id="filtroStato" onchange="render()" style="width:auto;"><option value="">Tutti</option><option value="creata">In coda</option><option value="inviata">Inviate</option><option value="fallita">Fallite</option></select></div></div>
+<table class="tab"><thead><tr><th>ID</th><th>Tipo</th><th>Destinatario</th><th>Oggetto</th><th>Stato</th><th>Tent.</th><th>Creata</th><th>Azioni</th></tr></thead><tbody id="tbody"></tbody></table>
+<div class="footer-note">Le email <strong>fallite</strong> hanno superato i 5 tentativi di invio. Usa il bottone "Ritenta" per resettare il contatore e rimetterle in coda.</div>
+<div class="modal-overlay" id="modaleDettaglio"><div class="modal"><div class="modal-header"><h3>Dettaglio email</h3><button class="modal-close" onclick="chiudiModale()">&times;</button></div><div class="modal-body" id="modaleBody"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="chiudiModale()">Chiudi</button></div></div></div>
+</div></div><script>
+function fmt(d,o){if(!d)return "—";const[y,m,dd]=d.split("-");return `${dd}/${m}/${y} ${o||""}`}
+function tipoLabel(t){return{conferma_ricezione:"Conferma ricezione",notifica_direttore:"Notifica direttore",esito_dipendente:"Esito al dipendente",esito_amministrazione:"Notifica amministrazione",codice_2fa:"Codice 2FA"}[t]||t}
+function statoLabel(s){return{creata:"In coda",inviata:"Inviata",fallita:"Fallita"}[s]||s}
+function render(){const filtro=document.getElementById("filtroStato").value;const all=window.EMAIL_DEMO;const e=filtro?all.filter(x=>x.stato_invio===filtro):all;document.getElementById("cn-creata").textContent=all.filter(x=>x.stato_invio==="creata").length;document.getElementById("cn-inviata").textContent=all.filter(x=>x.stato_invio==="inviata").length;document.getElementById("cn-fallita").textContent=all.filter(x=>x.stato_invio==="fallita").length;document.getElementById("cn-totale").textContent=all.length;const tb=document.getElementById("tbody");if(!e.length){tb.innerHTML=`<tr><td colspan="8" class="empty-state">Nessuna email corrisponde al filtro.</td></tr>`;return}tb.innerHTML=e.map(x=>{const ret=x.stato_invio==="fallita"?`<button class="action-link" onclick="ritenta(${x.id})">Ritenta</button>`:"";return `<tr><td>#${x.id}</td><td><span class="tag tag-tipo">${tipoLabel(x.tipo)}</span></td><td>${x.destinatario_nome}<br><small style="color:#6b7280">${x.destinatario_email}</small></td><td>${x.oggetto}</td><td><span class="tag tag-${x.stato_invio}">${statoLabel(x.stato_invio)}</span></td><td>${x.tentativi}</td><td>${fmt(x.data_creazione,x.ora_creazione)}</td><td><button class="action-link" onclick="apriDettaglio(${x.id})">Dettaglio</button>${ret}</td></tr>`}).join("")}
+function apriDettaglio(id){const e=window.EMAIL_DEMO.find(x=>x.id===id);if(!e)return;document.getElementById("modaleBody").innerHTML=`<div class="field"><div class="label">ID email</div><div class="value">#${e.id}</div></div><div class="field"><div class="label">Tipo</div><div class="value">${tipoLabel(e.tipo)}</div></div><div class="field"><div class="label">Richiesta associata</div><div class="value">${e.richiesta_id?"#"+e.richiesta_id:"—"}</div></div><div class="field"><div class="label">Destinatario</div><div class="value">${e.destinatario_nome} &lt;${e.destinatario_email}&gt;</div></div><div class="field"><div class="label">Oggetto</div><div class="value">${e.oggetto}</div></div><div class="field"><div class="label">Stato invio</div><div class="value"><span class="tag tag-${e.stato_invio}">${statoLabel(e.stato_invio)}</span></div></div><div class="field"><div class="label">Tentativi effettuati</div><div class="value">${e.tentativi}</div></div><div class="field"><div class="label">Creata il</div><div class="value">${fmt(e.data_creazione,e.ora_creazione)}</div></div>${e.data_invio?`<div class="field"><div class="label">Inviata il</div><div class="value">${fmt(e.data_invio,e.ora_invio)}</div></div>`:""}${e.errore?`<div class="field"><div class="label">Ultimo errore</div><div class="value" style="color:#991b1b;background:#fef2f2;padding:8px 12px;border-radius:6px;border:1px solid #fca5a5;font-size:13px;font-family:monospace;">${e.errore}</div></div>`:""}`;document.getElementById("modaleDettaglio").classList.add("visible")}
+function chiudiModale(){document.getElementById("modaleDettaglio").classList.remove("visible")}
+function ritenta(id){const e=window.EMAIL_DEMO.find(x=>x.id===id);if(!e)return;if(confirm(`Ritentare invio email #${id}?\n\nIl contatore tentativi verrà azzerato e l'email tornerà in coda.`)){e.stato_invio="creata";e.tentativi=0;e.errore=null;alert("Email rimessa in coda. Nel sistema vero il job di invio la riprenderà al prossimo ciclo.");render()}}
+render();
+</script></body></html>

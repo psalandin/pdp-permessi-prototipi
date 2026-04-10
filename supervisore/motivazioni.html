@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Motivazioni - Supervisore - PDP</title><link rel="stylesheet" href="../assets/style.css"/><script src="../assets/data.js"></script><style>
+.nav-secondaria{margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid #e5e7eb;display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
+.nav-secondaria a{color:#6b7280;text-decoration:none;padding:6px 0}
+.nav-secondaria a.attivo{color:#0f4c81;font-weight:600;border-bottom:2px solid #0f4c81}
+.nav-secondaria a:hover{color:#0f4c81}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.tab{width:100%;border-collapse:collapse;font-size:14px}
+.tab thead th{text-align:left;padding:12px 10px;background:#f8fafc;border-bottom:2px solid #dbe3ea;font-weight:600;color:#374151;white-space:nowrap}
+.tab tbody td{padding:12px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
+.tab tbody tr:hover{background:#f8fafc}
+.action-link{color:#0f4c81;text-decoration:none;font-weight:500;font-size:13px;margin-right:10px;cursor:pointer;background:none;border:none;padding:0;font-family:inherit}
+.action-link:hover{text-decoration:underline}
+.action-link.danger{color:#b91c1c}
+.empty-state{text-align:center;padding:40px 20px;color:#6b7280}
+.contatori{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.contatore{flex:1;min-width:140px;background:#f8fafc;border:1px solid #dbe3ea;border-radius:10px;padding:14px 16px;text-align:center}
+.contatore .num{font-size:26px;font-weight:700;color:#0f4c81;line-height:1;margin-bottom:4px}
+.contatore .lab{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.4px}
+.contatore.fallita .num{color:#b91c1c}
+.contatore.creata .num{color:#92400e}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.visible{display:flex}
+.modal{background:white;border-radius:14px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,0.3)}
+.modal-header{padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{margin:0;font-size:18px}
+.modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:#6b7280;line-height:1;padding:0 4px}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px}
+.field{margin-bottom:16px}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.tag-attivo{background:#d1fae5;color:#065f46}
+.tag-inattivo{background:#e5e7eb;color:#4b5563}
+.tag-creata{background:#fef3c7;color:#92400e}
+.tag-inviata{background:#d1fae5;color:#065f46}
+.tag-fallita{background:#fee2e2;color:#991b1b}
+.tag-tipo{background:#eff6ff;color:#1e40af;text-transform:none;font-size:11px}
+@media(max-width:700px){.tab{font-size:13px}.tab thead th,.tab tbody td{padding:10px 6px}}
+
+</style></head><body><div class="container container-wide"><div class="header">
+      <img class="header-logo" src="../assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Supervisore</h1><p>Sandro Costa &middot; Sistemi &middot; PDP Box Doccia</p>
+      </div>
+    </div><div class="content">
+<nav class="nav-secondaria"><a href="coda-email.html">Coda email</a><a href="utenti.html">Utenti</a><a href="motivazioni.html" class="attivo">Motivazioni</a><a href="causali.html">Causali</a></nav>
+<div class="toolbar"><h2 style="margin:0;">Gestione motivazioni</h2><button class="btn btn-primary" onclick="apriFormNuovo()">+ Nuova voce</button></div>
+<table class="tab"><thead><tr><th>ID</th><th>Descrizione</th><th>Stato</th><th>Azioni</th></tr></thead><tbody id="tbody"></tbody></table>
+<div class="footer-note">Le motivazioni disattivate non vengono più mostrate nel form di nuova richiesta, ma restano nello storico.</div>
+<div class="modal-overlay" id="modale"><div class="modal"><div class="modal-header"><h3 id="modaleTitolo">Modifica voce</h3><button class="modal-close" onclick="chiudi()">&times;</button></div><div class="modal-body"><div class="field"><label class="label" for="fDesc">Descrizione</label><input type="text" id="fDesc"/></div><div class="field"><label><input type="checkbox" id="fAttiva" checked/> Voce attiva</label></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="chiudi()">Annulla</button><button class="btn btn-primary" onclick="salva()">Salva</button></div></div></div>
+</div></div><script>
+let listaMot=["Permesso personale","Donazione sangue","Legge 104","Paternit\u00e0/Maternit\u00e0","Lutto"].map((d,i)=>({id:i+1,descrizione:d,attiva:true}));
+let modItem=null;
+function render(){const tb=document.getElementById("tbody");tb.innerHTML=listaMot.map(m=>`<tr><td>#${m.id}</td><td><strong>${m.descrizione}</strong></td><td><span class="tag tag-${m.attiva?"attivo":"inattivo"}">${m.attiva?"Attiva":"Disattivata"}</span></td><td><button class="action-link" onclick="apriForm(${m.id})">Modifica</button><button class="action-link danger" onclick="toggle(${m.id})">${m.attiva?"Disattiva":"Riattiva"}</button></td></tr>`).join("")}
+function apriFormNuovo(){modItem=null;document.getElementById("modaleTitolo").textContent="Nuova voce";document.getElementById("fDesc").value="";document.getElementById("fAttiva").checked=true;document.getElementById("modale").classList.add("visible")}
+function apriForm(id){modItem=listaMot.find(m=>m.id===id);if(!modItem)return;document.getElementById("modaleTitolo").textContent="Modifica voce";document.getElementById("fDesc").value=modItem.descrizione;document.getElementById("fAttiva").checked=modItem.attiva;document.getElementById("modale").classList.add("visible")}
+function chiudi(){document.getElementById("modale").classList.remove("visible")}
+function salva(){const desc=document.getElementById("fDesc").value.trim();if(!desc){alert("La descrizione è obbligatoria.");return}if(modItem){modItem.descrizione=desc;modItem.attiva=document.getElementById("fAttiva").checked;}else{const nuovo={id:Math.max(...listaMot.map(x=>x.id))+1,descrizione:desc,attiva:true};listaMot.push(nuovo)}chiudi();render()}
+function toggle(id){const m=listaMot.find(x=>x.id===id);if(!m)return;m.attiva=!m.attiva;render()}
+render();
+</script></body></html>

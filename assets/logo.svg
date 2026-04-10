@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" width="56" height="56">
+  <!-- Sfondo bianco con bordi arrotondati -->
+  <rect x="2" y="2" width="52" height="52" rx="10" fill="#ffffff" stroke="#ffffff" stroke-width="2"/>
+  <!-- Lettere PDP stilizzate -->
+  <text x="28" y="32" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#0f4c81" text-anchor="middle" letter-spacing="-0.5">PDP</text>
+  <!-- Linea decorativa sotto le lettere -->
+  <rect x="14" y="38" width="28" height="3" rx="1.5" fill="#0f4c81"/>
+  <!-- Piccolo segno di spunta in alto a destra (richiama l'idea di "approvazione") -->
+  <circle cx="44" cy="14" r="6" fill="#10b981"/>
+  <path d="M 41 14 L 43 16 L 47 12" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prototipi PDP Permessi</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .proto-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .proto-list li {
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #f8fafc;
+    }
+    .proto-list li.todo {
+      opacity: 0.5;
+      font-style: italic;
+    }
+    .proto-list a {
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .proto-list a:hover {
+      text-decoration: underline;
+    }
+    .proto-section {
+      margin-bottom: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container container-wide">
+    <div class="header">
+      <img class="header-logo" src="assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Prototipi PDP Permessi</h1>
+      <p>Indice delle pagine &middot; Fase 2 di prototipazione UI</p>
+      </div>
+    </div>
+    <div class="content">
+
+      <div class="proto-section">
+        <h3>Autenticazione</h3>
+        <ul class="proto-list">
+          <li><a href="login.html">Login (email + PIN)</a></li>
+          <li><a href="login-2fa.html">Verifica codice 2FA</a></li>
+        </ul>
+      </div>
+
+      <div class="proto-section">
+        <h3>Dipendente</h3>
+        <ul class="proto-list">
+          <li><a href="dipendente/nuova-richiesta.html">Nuova richiesta permesso</a></li>
+          <li><a href="dipendente/storico.html">Storico richieste personali</a></li>
+          <li><a href="dipendente/dettaglio-richiesta.html">Dettaglio richiesta (modifica / annullamento)</a></li>
+        </ul>
+      </div>
+
+      <div class="proto-section">
+        <h3>Direttore di produzione</h3>
+        <ul class="proto-list">
+          <li><a href="direttore/dashboard.html">Dashboard richieste (con filtri e ricerca storica)</a></li>
+          <li><a href="direttore/dettaglio-richiesta.html">Dettaglio richiesta (approva / rifiuta)</a></li>
+        </ul>
+      </div>
+
+      <div class="proto-section">
+        <h3>Amministrazione</h3>
+        <ul class="proto-list">
+          <li><a href="amministrazione/dashboard.html">Dashboard richieste da lavorare</a></li>
+          <li><a href="amministrazione/dettaglio-richiesta.html">Dettaglio richiesta (riscontro marcatempo)</a></li>
+          <li><a href="amministrazione/ricerca.html">Ricerca avanzata ed export CSV</a></li>
+        </ul>
+      </div>
+
+      <div class="proto-section">
+        <h3>Supervisore</h3>
+        <ul class="proto-list">
+          <li><a href="supervisore/coda-email.html">Coda email (monitoraggio)</a></li>
+          <li><a href="supervisore/utenti.html">Gestione utenti</a></li>
+          <li><a href="supervisore/motivazioni.html">Gestione motivazioni</a></li>
+          <li><a href="supervisore/causali.html">Gestione causali</a></li>
+        </ul>
+      </div>
+
+      <div class="proto-section">
+        <h3>Template email</h3>
+        <ul class="proto-list">
+          <li><a href="templates-email.html">Anteprima dei 6 template email</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

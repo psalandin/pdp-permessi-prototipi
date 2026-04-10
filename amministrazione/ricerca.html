@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ricerca avanzata - Amministrazione - PDP</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+  <script src="../assets/data.js"></script>
+  <style>
+    .nav-secondaria {
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+    }
+
+    .nav-secondaria a {
+      color: #6b7280;
+      text-decoration: none;
+      padding: 6px 0;
+    }
+
+    .nav-secondaria a.attivo {
+      color: #0f4c81;
+      font-weight: 600;
+      border-bottom: 2px solid #0f4c81;
+    }
+
+    .nav-secondaria a:hover {
+      color: #0f4c81;
+    }
+
+    /* Filtri ricca */
+    .filtri-avanzati {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      align-items: end;
+      padding: 18px;
+      background: #f8fafc;
+      border: 1px solid #dbe3ea;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filtri-avanzati .full-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .filtri-avanzati .filtri-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 8px;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 4px;
+    }
+
+    .filtri-range {
+      display: none;
+      grid-column: 1 / -1;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .filtri-range.visible {
+      display: grid;
+    }
+
+    .btn-export {
+      background: #065f46;
+      color: white;
+    }
+
+    .btn-export:hover {
+      background: #047857;
+    }
+
+    .btn-export:disabled {
+      background: #d1d5db;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    .filtri-reset {
+      background: none;
+      border: none;
+      color: #0f4c81;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: underline;
+    }
+
+    /* Tabella */
+    .storico-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .storico-table thead th {
+      text-align: left;
+      padding: 12px 10px;
+      background: #f8fafc;
+      border-bottom: 2px solid #dbe3ea;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .storico-table thead th:hover { background: #eef4fa; }
+
+    .storico-table thead th .sort-arrow {
+      display: inline-block;
+      margin-left: 4px;
+      opacity: 0.3;
+      font-size: 11px;
+    }
+
+    .storico-table thead th.sort-asc .sort-arrow,
+    .storico-table thead th.sort-desc .sort-arrow {
+      opacity: 1;
+      color: #0f4c81;
+    }
+
+    .storico-table tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: middle;
+    }
+
+    .storico-table tbody tr:hover { background: #f8fafc; }
+
+    .dipendente-cell { line-height: 1.3; }
+    .dipendente-cell .dip-nome { font-weight: 600; color: #111827; }
+    .dipendente-cell .dip-reparto { font-size: 12px; color: #6b7280; }
+
+    .urgente-icon {
+      display: inline-block;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid #fdba74;
+    }
+
+    .riscontro-icon {
+      display: inline-block;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .riscontro-confermata { color: #059669; }
+    .riscontro-discrepanza { color: #d97706; }
+    .riscontro-none { color: #d1d5db; font-size: 16px; }
+
+    .action-link {
+      color: #0f4c81;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .action-link:hover { text-decoration: underline; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+    }
+
+    .count-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 1000px) {
+      .filtri-avanzati { grid-template-columns: repeat(2, 1fr); }
+      .filtri-avanzati .full-row { grid-template-columns: 1fr 1fr; }
+      .storico-table { font-size: 13px; }
+      .storico-table thead th,
+      .storico-table tbody td { padding: 10px 6px; }
+    }
+
+    @media (max-width: 600px) {
+      .filtri-avanzati { grid-template-columns: 1fr; }
+      .filtri-avanzati .full-row { grid-template-columns: 1fr; }
+      .filtri-avanzati .filtri-actions { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container container-wide">
+    <div class="header">
+      <img class="header-logo" src="../assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Amministrazione</h1>
+      <p>Giulia Neri &middot; Amministrazione &middot; PDP Box Doccia</p>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <nav class="nav-secondaria">
+        <a href="dashboard.html">Da lavorare</a>
+        <a href="ricerca.html" class="attivo">Ricerca avanzata</a>
+      </nav>
+
+      <h2>Ricerca avanzata richieste</h2>
+
+      <div class="filtri-avanzati">
+        <div>
+          <label class="label" for="filtroStato">Stato</label>
+          <select id="filtroStato" onchange="applicaFiltri()">
+            <option value="">Tutti</option>
+            <option value="in_attesa">In attesa</option>
+            <option value="approvata">Approvata</option>
+            <option value="rifiutata">Rifiutata</option>
+            <option value="lavorata">Lavorata</option>
+            <option value="annullata">Annullata</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="filtroDipendente">Dipendente</label>
+          <select id="filtroDipendente" onchange="applicaFiltri()">
+            <option value="">Tutti i dipendenti</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="filtroReparto">Reparto</label>
+          <select id="filtroReparto" onchange="applicaFiltri()">
+            <option value="">Tutti i reparti</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="filtroMotivazione">Motivazione</label>
+          <select id="filtroMotivazione" onchange="applicaFiltri()">
+            <option value="">Tutte</option>
+            <option>Permesso personale</option>
+            <option>Donazione sangue</option>
+            <option>Legge 104</option>
+            <option>Paternità/Maternità</option>
+            <option>Lutto</option>
+          </select>
+        </div>
+
+        <div class="full-row">
+          <div>
+            <label class="label" for="filtroPeriodo">Periodo</label>
+            <select id="filtroPeriodo" onchange="onPeriodoChange()">
+              <option value="anno_corrente" selected>Anno corrente</option>
+              <option value="mese_corrente">Mese corrente</option>
+              <option value="mese_prossimo">Mese prossimo</option>
+              <option value="ultimi_3_mesi">Ultimi 3 mesi</option>
+              <option value="tutte">Tutte</option>
+              <option value="personalizzato">Personalizzato...</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="filtroUrgente">Solo urgenti</label>
+            <select id="filtroUrgente" onchange="applicaFiltri()">
+              <option value="">No, tutte</option>
+              <option value="si">Sì, solo urgenti</option>
+            </select>
+          </div>
+          <div></div>
+        </div>
+
+        <div class="filtri-range" id="filtriRange">
+          <div>
+            <label class="label" for="dataDa">Dal</label>
+            <input type="date" id="dataDa" onchange="applicaFiltri()" />
+          </div>
+          <div>
+            <label class="label" for="dataA">Al</label>
+            <input type="date" id="dataA" onchange="applicaFiltri()" />
+          </div>
+        </div>
+
+        <div class="filtri-actions">
+          <button type="button" class="filtri-reset" onclick="resetFiltri()">Azzera filtri</button>
+          <button type="button" class="btn btn-export" id="btnExport" onclick="esportaCSV()">Esporta CSV</button>
+        </div>
+      </div>
+
+      <div class="count-label" id="countLabel">—</div>
+
+      <table class="storico-table">
+        <thead>
+          <tr>
+            <th data-col="data_sospensione" onclick="ordinaPer('data_sospensione')">
+              Data permesso <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="dipendente" onclick="ordinaPer('dipendente')">
+              Dipendente <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="reparto" onclick="ordinaPer('reparto')">
+              Reparto <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="motivazione" onclick="ordinaPer('motivazione')">
+              Motivazione <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="tipo" onclick="ordinaPer('tipo')">
+              Tipo <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="durata" onclick="ordinaPer('durata')">
+              Durata <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="urgente" onclick="ordinaPer('urgente')">
+              Urg. <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="stato" onclick="ordinaPer('stato')">
+              Stato <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th data-col="riscontro" onclick="ordinaPer('riscontro')">
+              Risc. <span class="sort-arrow">&#9650;&#9660;</span>
+            </th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="tabellaBody">
+          <!-- Popolato da JS -->
+        </tbody>
+      </table>
+
+      <div class="footer-note">
+        Combinazione dei filtri per cercare richieste su qualsiasi periodo, dipendente, reparto, stato o motivazione.
+        Il bottone <strong>Esporta CSV</strong> scarica un file con tutte le richieste filtrate, comprensive di decisione e lavorazione.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // Stato della vista
+    // =========================================================
+    let sortColumn = 'data_sospensione';
+    let sortDir = 'desc'; // Ricerca: default decrescente (più recenti prima)
+    let righeFiltrate = [];
+
+    // =========================================================
+    // Helper formattazione
+    // =========================================================
+    function formatData(iso) {
+      if (!iso) return '';
+      const [y, m, d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function formatTipo(tipo) {
+      return tipo === 'giornata_intera' ? 'Giornata intera' : 'Permesso orario';
+    }
+
+    function formatDurata(ore) {
+      if (ore === 1) return '1 ora';
+      return `${ore.toString().replace('.', ',')} ore`;
+    }
+
+    function formatStato(stato) {
+      const mappa = {
+        in_attesa: 'In attesa',
+        approvata: 'Approvata',
+        rifiutata: 'Rifiutata',
+        lavorata: 'Lavorata',
+        annullata: 'Annullata',
+      };
+      return mappa[stato] || stato;
+    }
+
+    function toIsoDate(d) {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // =========================================================
+    // Popola dropdown dinamici (dipendenti, reparti)
+    // =========================================================
+    function popolaDropdown() {
+      const selDip = document.getElementById('filtroDipendente');
+      // Solo dipendenti che hanno almeno una richiesta
+      const idsConRichieste = new Set(window.RICHIESTE_DEMO.map(r => r.dipendente_id));
+      const dipendenti = window.DIPENDENTI_DEMO
+        .filter(d => idsConRichieste.has(d.id))
+        .sort((a, b) => a.nome.localeCompare(b.nome));
+      dipendenti.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = d.nome;
+        selDip.appendChild(opt);
+      });
+
+      const selRep = document.getElementById('filtroReparto');
+      const reparti = [...new Set(dipendenti.map(d => d.reparto))].sort();
+      reparti.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        selRep.appendChild(opt);
+      });
+    }
+
+    // =========================================================
+    // Filtri
+    // =========================================================
+    function calcolaRangePeriodo(chiave) {
+      const oggi = new Date();
+      let da, a;
+      switch (chiave) {
+        case 'anno_corrente':
+          da = new Date(oggi.getFullYear(), 0, 1);
+          a = new Date(oggi.getFullYear(), 11, 31);
+          break;
+        case 'mese_corrente':
+          da = new Date(oggi.getFullYear(), oggi.getMonth(), 1);
+          a = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
+          break;
+        case 'mese_prossimo':
+          da = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 1);
+          a = new Date(oggi.getFullYear(), oggi.getMonth() + 2, 0);
+          break;
+        case 'ultimi_3_mesi':
+          da = new Date(oggi.getFullYear(), oggi.getMonth() - 3, oggi.getDate());
+          a = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
+          break;
+        case 'tutte':
+          return { da: null, a: null };
+        case 'personalizzato':
+          return {
+            da: document.getElementById('dataDa').value || null,
+            a: document.getElementById('dataA').value || null,
+          };
+      }
+      return { da: toIsoDate(da), a: toIsoDate(a) };
+    }
+
+    function onPeriodoChange() {
+      const periodo = document.getElementById('filtroPeriodo').value;
+      const rangeEl = document.getElementById('filtriRange');
+      if (periodo === 'personalizzato') {
+        rangeEl.classList.add('visible');
+      } else {
+        rangeEl.classList.remove('visible');
+      }
+      applicaFiltri();
+    }
+
+    function applicaFiltri() {
+      const stato = document.getElementById('filtroStato').value;
+      const dipId = document.getElementById('filtroDipendente').value;
+      const reparto = document.getElementById('filtroReparto').value;
+      const motivazione = document.getElementById('filtroMotivazione').value;
+      const urgente = document.getElementById('filtroUrgente').value;
+      const periodo = document.getElementById('filtroPeriodo').value;
+      const { da, a } = calcolaRangePeriodo(periodo);
+
+      righeFiltrate = window.RICHIESTE_DEMO.filter(r => {
+        if (da && r.data_sospensione < da) return false;
+        if (a && r.data_sospensione > a) return false;
+        if (stato && r.stato !== stato) return false;
+        if (dipId && r.dipendente_id !== parseInt(dipId, 10)) return false;
+        if (motivazione && r.motivazione !== motivazione) return false;
+        if (urgente === 'si' && !r.urgente) return false;
+        if (reparto) {
+          const dip = window.getDipendente(r.dipendente_id);
+          if (!dip || dip.reparto !== reparto) return false;
+        }
+        return true;
+      });
+
+      // Ordinamento
+      righeFiltrate.sort((x, y) => {
+        let vx, vy;
+        if (sortColumn === 'dipendente') {
+          vx = (window.getDipendente(x.dipendente_id) || {}).nome || '';
+          vy = (window.getDipendente(y.dipendente_id) || {}).nome || '';
+        } else if (sortColumn === 'reparto') {
+          vx = (window.getDipendente(x.dipendente_id) || {}).reparto || '';
+          vy = (window.getDipendente(y.dipendente_id) || {}).reparto || '';
+        } else if (sortColumn === 'riscontro') {
+          // Ordine: confermata (1) < discrepanza (2) < nessuna (3)
+          const pesoRiscontro = (r) => {
+            if (!r.lavorazione) return 3;
+            return r.lavorazione.esito_marcatempo === 'confermata' ? 1 : 2;
+          };
+          vx = pesoRiscontro(x);
+          vy = pesoRiscontro(y);
+        } else {
+          vx = x[sortColumn];
+          vy = y[sortColumn];
+          if (typeof vx === 'boolean') { vx = vx ? 1 : 0; vy = vy ? 1 : 0; }
+        }
+        if (vx < vy) return sortDir === 'asc' ? -1 : 1;
+        if (vx > vy) return sortDir === 'asc' ?  1 : -1;
+        return 0;
+      });
+
+      renderTabella(righeFiltrate);
+      aggiornaIndicatoriSort();
+      aggiornaBottoneExport();
+    }
+
+    function resetFiltri() {
+      document.getElementById('filtroStato').value = '';
+      document.getElementById('filtroDipendente').value = '';
+      document.getElementById('filtroReparto').value = '';
+      document.getElementById('filtroMotivazione').value = '';
+      document.getElementById('filtroUrgente').value = '';
+      document.getElementById('filtroPeriodo').value = 'anno_corrente';
+      document.getElementById('dataDa').value = '';
+      document.getElementById('dataA').value = '';
+      document.getElementById('filtriRange').classList.remove('visible');
+      sortColumn = 'data_sospensione';
+      sortDir = 'desc';
+      applicaFiltri();
+    }
+
+    // =========================================================
+    // Ordinamento
+    // =========================================================
+    function ordinaPer(colonna) {
+      if (sortColumn === colonna) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = colonna;
+        sortDir = 'asc';
+      }
+      applicaFiltri();
+    }
+
+    function aggiornaIndicatoriSort() {
+      document.querySelectorAll('.storico-table thead th').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        const arrow = th.querySelector('.sort-arrow');
+        if (arrow) arrow.innerHTML = '&#9650;&#9660;';
+        if (th.dataset.col === sortColumn) {
+          th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+          if (arrow) arrow.innerHTML = sortDir === 'asc' ? '&#9650;' : '&#9660;';
+        }
+      });
+    }
+
+    // =========================================================
+    // Rendering
+    // =========================================================
+    function renderTabella(righe) {
+      const tbody = document.getElementById('tabellaBody');
+      const countLabel = document.getElementById('countLabel');
+
+      countLabel.textContent = `${righe.length} richiest${righe.length === 1 ? 'a' : 'e'} trovate`;
+
+      if (righe.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="empty-state">Nessuna richiesta corrisponde ai filtri selezionati.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = righe.map(r => {
+        const dip = window.getDipendente(r.dipendente_id) || { nome: '—', reparto: '—' };
+        const urgIcon = r.urgente ? `<span class="urgente-icon">URG</span>` : '';
+
+        let riscontroIcon;
+        if (r.lavorazione && r.lavorazione.esito_marcatempo === 'confermata') {
+          riscontroIcon = `<span class="riscontro-icon riscontro-confermata" title="Confermata con marcatempo">✓</span>`;
+        } else if (r.lavorazione && r.lavorazione.esito_marcatempo === 'discrepanza') {
+          riscontroIcon = `<span class="riscontro-icon riscontro-discrepanza" title="Discrepanza con marcatempo">⚠</span>`;
+        } else {
+          riscontroIcon = `<span class="riscontro-icon riscontro-none" title="Non lavorata">—</span>`;
+        }
+
+        return `
+          <tr>
+            <td>${formatData(r.data_sospensione)}</td>
+            <td class="dipendente-cell">
+              <div class="dip-nome">${dip.nome}</div>
+            </td>
+            <td>${dip.reparto}</td>
+            <td>${r.motivazione}</td>
+            <td>${formatTipo(r.tipo)}</td>
+            <td>${formatDurata(r.durata)}</td>
+            <td>${urgIcon}</td>
+            <td><span class="badge badge-${r.stato}">${formatStato(r.stato)}</span></td>
+            <td style="text-align: center;">${riscontroIcon}</td>
+            <td><a href="dettaglio-richiesta.html?id=${r.id}" class="action-link">Dettaglio</a></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function aggiornaBottoneExport() {
+      const btn = document.getElementById('btnExport');
+      btn.disabled = righeFiltrate.length === 0;
+      btn.textContent = righeFiltrate.length > 0
+        ? `Esporta CSV (${righeFiltrate.length})`
+        : 'Esporta CSV';
+    }
+
+    // =========================================================
+    // Export CSV (vero, non placeholder)
+    // =========================================================
+    function esportaCSV() {
+      if (righeFiltrate.length === 0) return;
+
+      // Definizione colonne CSV (con header descrittivi)
+      const headers = [
+        'ID',
+        'Data permesso',
+        'Dipendente',
+        'Reparto',
+        'Motivazione',
+        'Tipo',
+        'Ora inizio',
+        'Ora fine',
+        'Durata (ore)',
+        'Urgente',
+        'Note dipendente',
+        'Stato',
+        'Data creazione',
+        'Ora creazione',
+        'Decisione - Esito',
+        'Decisione - Direttore',
+        'Decisione - Causale',
+        'Decisione - Note',
+        'Decisione - Data',
+        'Lavorazione - Operatore',
+        'Lavorazione - Esito marcatempo',
+        'Lavorazione - Note',
+        'Lavorazione - Data',
+      ];
+
+      // Funzione per "escapare" i valori CSV: virgolette doppie raddoppiate,
+      // tutto tra virgolette doppie. Compatibile RFC 4180.
+      const escapeCsv = (value) => {
+        if (value === null || value === undefined) return '';
+        const str = String(value);
+        return `"${str.replace(/"/g, '""')}"`;
+      };
+
+      const rows = righeFiltrate.map(r => {
+        const dip = window.getDipendente(r.dipendente_id) || { nome: '', reparto: '' };
+        const dec = r.decisione || {};
+        const lav = r.lavorazione || {};
+
+        return [
+          r.id,
+          formatData(r.data_sospensione),
+          dip.nome,
+          dip.reparto,
+          r.motivazione,
+          formatTipo(r.tipo),
+          r.ora_inizio || '',
+          r.ora_fine || '',
+          r.durata,
+          r.urgente ? 'Sì' : 'No',
+          r.note || '',
+          formatStato(r.stato),
+          formatData(r.data_creazione),
+          r.ora_creazione,
+          dec.esito ? formatStato(dec.esito) : '',
+          dec.direttore || '',
+          dec.causale || '',
+          dec.note || '',
+          dec.data ? formatData(dec.data) : '',
+          lav.operatore || '',
+          lav.esito_marcatempo === 'confermata' ? 'Confermata' : (lav.esito_marcatempo === 'discrepanza' ? 'Discrepanza' : ''),
+          lav.note || '',
+          lav.data ? formatData(lav.data) : '',
+        ].map(escapeCsv).join(';');
+      });
+
+      // Aggiungo BOM UTF-8 per compatibilità con Excel italiano (per accenti e caratteri speciali)
+      const csv = '\ufeff' + headers.map(escapeCsv).join(';') + '\n' + rows.join('\n');
+
+      // Creo Blob e forzo download
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      // Nome file con data corrente
+      const oggi = new Date();
+      const nomeFile = `richieste_pdp_${oggi.getFullYear()}${String(oggi.getMonth() + 1).padStart(2, '0')}${String(oggi.getDate()).padStart(2, '0')}.csv`;
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nomeFile;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // =========================================================
+    // Avvio
+    // =========================================================
+    popolaDropdown();
+    applicaFiltri();
+  </script>
+</body>
+</html>

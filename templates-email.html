@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template email - PDP Permessi</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .demo-bar {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+    .demo-bar strong { color: #92400e; }
+    .demo-bar select {
+      width: auto;
+      flex: 1;
+      min-width: 280px;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
+    .nota-tecnica {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #1e40af;
+      margin-bottom: 24px;
+    }
+
+    /* Cornice "client di posta" che simula la finestra di una mail */
+    .email-frame {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .email-meta {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px 8px 0 0;
+      border-bottom: none;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .email-meta .meta-row {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 8px;
+      padding: 4px 0;
+    }
+    .email-meta .meta-label { color: #9ca3af; font-weight: 500; }
+    .email-meta .meta-value { color: #111827; font-weight: 500; }
+
+    .email-body {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0 0 8px 8px;
+      padding: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="container container-wide">
+    <div class="header">
+      <img class="header-logo" src="assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Template Email</h1>
+        <p>Anteprima delle email generate dal sistema &middot; PDP Box Doccia</p>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="nota-tecnica">
+        <strong>Nota:</strong> nel sistema reale, ogni email viene generata automaticamente in seguito a un evento applicativo
+        (nuova richiesta, decisione, accesso 2FA, ecc.) e accodata per l'invio. Il dipendente, il direttore e l'amministrazione
+        non vedono mai questa pagina: la ricevono direttamente nella loro casella di posta. Questa pagina serve solo per visualizzare
+        l'aspetto grafico dei vari template prima della messa in produzione.
+      </div>
+
+      <div class="demo-bar">
+        <strong>Demo:</strong>
+        <span>scegli un template &rarr;</span>
+        <select id="selettoreTemplate" onchange="renderTemplate()">
+          <option value="conferma_ricezione">Conferma ricezione (al dipendente)</option>
+          <option value="notifica_direttore">Notifica nuova richiesta (al direttore)</option>
+          <option value="esito_approvata">Esito approvata (al dipendente)</option>
+          <option value="esito_rifiutata">Esito rifiutata (al dipendente)</option>
+          <option value="notifica_amministrazione">Richiesta da lavorare (all'amministrazione)</option>
+          <option value="codice_2fa">Codice di verifica 2FA</option>
+        </select>
+      </div>
+
+      <div id="emailContainer">
+        <!-- Popolato da JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Tutti i template usano le stesse convenzioni: tabelle, larghezza max 600px,
+    // stili inline, font web-safe. Compatibili con i principali client di posta.
+
+    const COLORI = {
+      blu: '#0f4c81',
+      bluScuro: '#0c3d68',
+      grigio: '#6b7280',
+      grigioChiaro: '#f8fafc',
+      bordo: '#e5e7eb',
+      verde: '#065f46',
+      verdeBg: '#ecfdf5',
+      verdeBordo: '#10b981',
+      rosso: '#991b1b',
+      rossoBg: '#fef2f2',
+      rossoBordo: '#ef4444',
+      arancio: '#92400e',
+      arancioBg: '#fef3c7',
+    };
+
+    function emailLayout(meta, contenuto) {
+      return `
+        <div class="email-frame">
+          <div class="email-meta">
+            <div class="meta-row"><span class="meta-label">Da:</span><span class="meta-value">${meta.da}</span></div>
+            <div class="meta-row"><span class="meta-label">A:</span><span class="meta-value">${meta.a}</span></div>
+            <div class="meta-row"><span class="meta-label">Oggetto:</span><span class="meta-value"><strong>${meta.oggetto}</strong></span></div>
+          </div>
+          <div class="email-body">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f4f6f8;font-family:Arial,sans-serif;">
+              <tr><td align="center" style="padding:30px 20px;">
+                <table cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                  <tr>
+                    <td style="background:#0f4c81;padding:24px 28px;color:#ffffff;">
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <tr>
+                          <td width="56" valign="middle">
+                            <img src="assets/logo.svg" alt="PDP" width="48" height="48" style="display:block;"/>
+                          </td>
+                          <td valign="middle" style="padding-left:16px;">
+                            <div style="font-size:20px;font-weight:bold;line-height:1.2;">PDP Permessi</div>
+                            <div style="font-size:13px;opacity:0.9;margin-top:2px;">PDP Box Doccia</div>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr><td style="padding:32px 28px;color:#1f2937;font-size:15px;line-height:1.6;">${contenuto}</td></tr>
+                  <tr>
+                    <td style="background:#f8fafc;border-top:1px solid #e5e7eb;padding:18px 28px;color:#9ca3af;font-size:12px;text-align:center;">
+                      Email automatica del sistema PDP Permessi. Non rispondere a questo indirizzo.<br/>
+                      &copy; PDP Box Doccia &middot; Tutti i diritti riservati.
+                    </td>
+                  </tr>
+                </table>
+              </td></tr>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function dettagliRichiestaTable(r) {
+      return `
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;margin:18px 0;">
+          <tr><td style="padding:16px 20px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:14px;">
+              <tr><td style="color:#6b7280;padding:4px 0;width:40%;">Motivazione</td><td style="color:#111827;font-weight:600;">${r.motivazione}</td></tr>
+              <tr><td style="color:#6b7280;padding:4px 0;">Data del permesso</td><td style="color:#111827;font-weight:600;">${r.dataPermesso}</td></tr>
+              <tr><td style="color:#6b7280;padding:4px 0;">Tipo</td><td style="color:#111827;font-weight:600;">${r.tipo}</td></tr>
+              <tr><td style="color:#6b7280;padding:4px 0;">Durata</td><td style="color:#111827;font-weight:600;">${r.durata}</td></tr>
+              ${r.urgente ? '<tr><td style="color:#6b7280;padding:4px 0;">Urgenza</td><td style="color:#c2410c;font-weight:600;">⚠ Causa di forza maggiore</td></tr>' : ''}
+            </table>
+          </td></tr>
+        </table>
+      `;
+    }
+
+    // =========================================================
+    // I 6 template
+    // =========================================================
+    const TEMPLATES = {
+      conferma_ricezione: () => {
+        const r = { motivazione: 'Permesso personale', dataPermesso: '12/05/2026', tipo: 'Giornata intera', durata: '8 ore', urgente: false };
+        return emailLayout(
+          { da: 'PDP Permessi &lt;noreply@pdpboxdoccia.com&gt;', a: 'Mario Rossi &lt;m.rossi@pdpboxdoccia.com&gt;', oggetto: 'Conferma ricezione richiesta permesso #51' },
+          `<p>Gentile <strong>Mario</strong>,</p>
+           <p>abbiamo ricevuto la tua richiesta di permesso. Di seguito un riepilogo dei dati inseriti:</p>
+           ${dettagliRichiestaTable(r)}
+           <p>La richiesta è stata trasmessa al direttore di produzione, che la valuterà nei prossimi giorni. Riceverai una nuova email non appena verrà presa una decisione.</p>
+           <p>Se hai necessità di modificare o annullare la richiesta, puoi farlo accedendo all'area riservata finché lo stato è "in attesa".</p>
+           <p style="margin-top:24px;color:#6b7280;font-size:13px;">Numero richiesta: <strong>#51</strong><br/>Inserita il 07/04/2026 alle 08:42</p>`
+        );
+      },
+
+      notifica_direttore: () => {
+        const r = { motivazione: 'Lutto', dataPermesso: '09/04/2026', tipo: 'Giornata intera', durata: '8 ore', urgente: true };
+        return emailLayout(
+          { da: 'PDP Permessi &lt;noreply@pdpboxdoccia.com&gt;', a: 'Luca Bianchi &lt;l.bianchi@pdpboxdoccia.com&gt;', oggetto: '⚠ URGENTE: Nuova richiesta permesso #61 - Paolo Russo' },
+          `<p>Gentile <strong>Luca</strong>,</p>
+           <p>è stata inserita una nuova richiesta di permesso che richiede la tua valutazione:</p>
+           <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff7ed;border:1px solid #fdba74;border-left:4px solid #c2410c;border-radius:8px;margin:18px 0;">
+             <tr><td style="padding:16px 20px;">
+               <div style="color:#9a3412;font-weight:bold;font-size:15px;margin-bottom:8px;">⚠ Richiesta urgente per causa di forza maggiore</div>
+               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:14px;">
+                 <tr><td style="color:#9a3412;padding:4px 0;width:40%;">Dipendente</td><td style="color:#111827;font-weight:600;">Paolo Russo (Produzione)</td></tr>
+                 <tr><td style="color:#9a3412;padding:4px 0;">Motivazione</td><td style="color:#111827;font-weight:600;">${r.motivazione}</td></tr>
+                 <tr><td style="color:#9a3412;padding:4px 0;">Data del permesso</td><td style="color:#111827;font-weight:600;">${r.dataPermesso}</td></tr>
+                 <tr><td style="color:#9a3412;padding:4px 0;">Durata</td><td style="color:#111827;font-weight:600;">${r.durata}</td></tr>
+               </table>
+             </td></tr>
+           </table>
+           <p>Note del dipendente: <em>"Decesso familiare stretto."</em></p>
+           <p style="text-align:center;margin:28px 0;">
+             <a href="#" style="display:inline-block;background:#0f4c81;color:#ffffff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">Apri richiesta &rarr;</a>
+           </p>
+           <p style="color:#6b7280;font-size:13px;">Accedi all'area direttore per visualizzare il dettaglio completo e prendere una decisione.</p>`
+        );
+      },
+
+      esito_approvata: () => {
+        const r = { motivazione: 'Permesso personale', dataPermesso: '18/04/2026', tipo: 'Giornata intera', durata: '8 ore', urgente: false };
+        return emailLayout(
+          { da: 'PDP Permessi &lt;noreply@pdpboxdoccia.com&gt;', a: 'Mario Rossi &lt;m.rossi@pdpboxdoccia.com&gt;', oggetto: '✓ Richiesta permesso #49 approvata' },
+          `<p>Gentile <strong>Mario</strong>,</p>
+           <p>la tua richiesta di permesso è stata <strong style="color:#065f46;">approvata</strong> dal direttore di produzione.</p>
+           <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#ecfdf5;border:1px solid #10b981;border-left:4px solid #10b981;border-radius:8px;margin:18px 0;">
+             <tr><td style="padding:16px 20px;">
+               <div style="color:#065f46;font-weight:bold;font-size:15px;margin-bottom:10px;">✓ Richiesta approvata</div>
+               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:14px;">
+                 <tr><td style="color:#6b7280;padding:4px 0;width:40%;">Motivazione</td><td style="color:#111827;font-weight:600;">${r.motivazione}</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Data del permesso</td><td style="color:#111827;font-weight:600;">${r.dataPermesso}</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Durata</td><td style="color:#111827;font-weight:600;">${r.durata}</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Causale</td><td style="color:#111827;font-weight:600;">Compatibile con pianificazione</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Decisa da</td><td style="color:#111827;font-weight:600;">Luca Bianchi</td></tr>
+               </table>
+             </td></tr>
+           </table>
+           <p>Buon riposo!</p>
+           <p style="margin-top:24px;color:#6b7280;font-size:13px;">Numero richiesta: <strong>#49</strong></p>`
+        );
+      },
+
+      esito_rifiutata: () => {
+        return emailLayout(
+          { da: 'PDP Permessi &lt;noreply@pdpboxdoccia.com&gt;', a: 'Mario Rossi &lt;m.rossi@pdpboxdoccia.com&gt;', oggetto: 'Richiesta permesso #47 non approvata' },
+          `<p>Gentile <strong>Mario</strong>,</p>
+           <p>ci dispiace comunicarti che la tua richiesta di permesso non è stata approvata dal direttore di produzione.</p>
+           <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fef2f2;border:1px solid #ef4444;border-left:4px solid #ef4444;border-radius:8px;margin:18px 0;">
+             <tr><td style="padding:16px 20px;">
+               <div style="color:#991b1b;font-weight:bold;font-size:15px;margin-bottom:10px;">Richiesta non approvata</div>
+               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:14px;">
+                 <tr><td style="color:#6b7280;padding:4px 0;width:40%;">Motivazione</td><td style="color:#111827;font-weight:600;">Permesso personale</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Data del permesso</td><td style="color:#111827;font-weight:600;">22/03/2026</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Causale</td><td style="color:#111827;font-weight:600;">Incompatibile con pianificazione</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;vertical-align:top;">Note del direttore</td><td style="color:#111827;">Settimana di consegna ordine, impossibile sostituire.</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Decisa da</td><td style="color:#111827;font-weight:600;">Luca Bianchi</td></tr>
+               </table>
+             </td></tr>
+           </table>
+           <p>Per chiarimenti puoi rivolgerti direttamente al direttore di produzione, oppure inserire una nuova richiesta per una data alternativa.</p>
+           <p style="margin-top:24px;color:#6b7280;font-size:13px;">Numero richiesta: <strong>#47</strong></p>`
+        );
+      },
+
+      notifica_amministrazione: () => {
+        return emailLayout(
+          { da: 'PDP Permessi &lt;noreply@pdpboxdoccia.com&gt;', a: 'Giulia Neri &lt;g.neri@pdpboxdoccia.com&gt;', oggetto: 'Nuova richiesta #49 da lavorare' },
+          `<p>Gentile <strong>Giulia</strong>,</p>
+           <p>una nuova richiesta di permesso è stata approvata dal direttore ed è pronta per il riscontro con il marcatempo.</p>
+           <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;margin:18px 0;">
+             <tr><td style="padding:16px 20px;">
+               <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:14px;">
+                 <tr><td style="color:#6b7280;padding:4px 0;width:40%;">Dipendente</td><td style="color:#111827;font-weight:600;">Mario Rossi (Produzione)</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Motivazione</td><td style="color:#111827;font-weight:600;">Permesso personale</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Data del permesso</td><td style="color:#111827;font-weight:600;">18/04/2026</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Tipo</td><td style="color:#111827;font-weight:600;">Giornata intera (8 ore)</td></tr>
+                 <tr><td style="color:#6b7280;padding:4px 0;">Decisa il</td><td style="color:#111827;font-weight:600;">29/03/2026 alle 09:10</td></tr>
+               </table>
+             </td></tr>
+           </table>
+           <p>La richiesta resterà nella tua dashboard "da lavorare" finché non avrai completato il riscontro.</p>
+           <p style="text-align:center;margin:28px 0;">
+             <a href="#" style="display:inline-block;background:#0f4c81;color:#ffffff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">Apri dashboard amministrazione &rarr;</a>
+           </p>`
+        );
+      },
+
+      codice_2fa: () => {
+        return emailLayout(
+          { da: 'PDP Permessi &lt;noreply@pdpboxdoccia.com&gt;', a: 'Luca Bianchi &lt;l.bianchi@pdpboxdoccia.com&gt;', oggetto: 'Codice di verifica accesso PDP Permessi' },
+          `<p>Gentile <strong>Luca</strong>,</p>
+           <p>è stato richiesto un accesso al sistema PDP Permessi con il tuo account. Per completare l'accesso, inserisci il seguente codice di verifica:</p>
+           <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:24px 0;">
+             <tr><td align="center">
+               <div style="display:inline-block;background:#eef4fa;border:2px solid #0f4c81;border-radius:12px;padding:20px 40px;font-size:36px;font-weight:bold;color:#0f4c81;letter-spacing:12px;font-family:monospace;">
+                 123456
+               </div>
+             </td></tr>
+           </table>
+           <p style="text-align:center;color:#6b7280;font-size:13px;">Il codice è valido per <strong>10 minuti</strong>.</p>
+           <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;margin-top:24px;">
+             <tr><td style="padding:14px 18px;color:#92400e;font-size:13px;">
+               <strong>Non hai richiesto questo codice?</strong><br/>
+               Se non stai tentando di accedere al sistema in questo momento, ignora questa email e contatta il supervisore di sistema per segnalare un possibile accesso non autorizzato.
+             </td></tr>
+           </table>`
+        );
+      },
+    };
+
+    function renderTemplate() {
+      const tipo = document.getElementById('selettoreTemplate').value;
+      const fn = TEMPLATES[tipo];
+      document.getElementById('emailContainer').innerHTML = fn ? fn() : '<p>Template non trovato.</p>';
+    }
+
+    renderTemplate();
+  </script>
+</body>
+</html>
