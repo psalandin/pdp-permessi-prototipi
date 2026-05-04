@@ -284,7 +284,7 @@
             <th data-col="motivazione" onclick="ordinaPer('motivazione')">
               Motivazione <span class="sort-arrow">&#9650;&#9660;</span>
             </th>
-            <th data-col="data_sospensione" onclick="ordinaPer('data_sospensione')">
+            <th data-col="data_inizio" onclick="ordinaPer('data_inizio')">
               Data permesso <span class="sort-arrow">&#9650;&#9660;</span>
             </th>
             <th data-col="tipo" onclick="ordinaPer('tipo')">
@@ -318,7 +318,16 @@
     // =========================================================
     // Dataset condiviso (tutte le richieste, non filtrate per dipendente)
     // =========================================================
-    const richieste = window.RICHIESTE_DEMO;
+    // Il direttore corrente (Luca Bianchi, id 10) vede solo le richieste
+    // dei dipendenti appartenenti ai reparti di cui è responsabile.
+    const DIRETTORE_CORRENTE_ID = 10;
+    const repartiDiCompetenza = (window.REPARTI_DEMO || [])
+      .filter(r => r.direttore_id === DIRETTORE_CORRENTE_ID)
+      .map(r => r.descrizione);
+    const richieste = window.RICHIESTE_DEMO.filter(r => {
+      const dip = window.getDipendente(r.dipendente_id);
+      return dip && repartiDiCompetenza.includes(dip.reparto);
+    });
 
     // =========================================================
     // Stato della vista
@@ -417,8 +426,8 @@
       const { da, a } = calcolaRangePeriodo(periodo);
 
       let filtrate = richieste.filter(r => {
-        if (da && r.data_sospensione < da) return false;
-        if (a && r.data_sospensione > a) return false;
+        if (da && r.data_inizio < da) return false;
+        if (a && r.data_inizio > a) return false;
         if (stato && r.stato !== stato) return false;
         return true;
       });
@@ -535,7 +544,7 @@
               <div class="dip-reparto">${dip.reparto}</div>
             </td>
             <td>${r.motivazione}</td>
-            <td>${formatData(r.data_sospensione)}</td>
+            <td>${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</td>
             <td>${formatTipo(r.tipo)}</td>
             <td>${formatDurata(r.durata)}</td>
             <td>${urgIcon}</td>

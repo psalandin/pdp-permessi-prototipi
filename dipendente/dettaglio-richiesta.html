@@ -208,7 +208,7 @@
     function popolaSelettore(idCorrente) {
       const sel = document.getElementById('selettoreRichiesta');
       sel.innerHTML = window.RICHIESTE_DEMO.map(r => {
-        const label = `#${r.id} - ${formatStato(r.stato)}: ${r.motivazione} del ${formatData(r.data_sospensione)}${r.urgente ? ' [URG]' : ''}`;
+        const label = `#${r.id} - ${formatStato(r.stato)}: ${r.motivazione} del ${formatData(r.data_inizio)}${r.urgente ? ' [URG]' : ''}`;
         const selected = r.id === idCorrente ? 'selected' : '';
         return `<option value="${r.id}" ${selected}>${label}</option>`;
       }).join('');
@@ -322,8 +322,12 @@
             </div>
 
             <div class="full">
-              <label class="label" for="data">Data del permesso</label>
-              <input type="date" id="data" value="${r.data_sospensione}" />
+              <label class="label" for="data_inizio">Data inizio</label>
+              <input type="date" id="data_inizio" value="${r.data_inizio}" />
+            </div>
+            <div>
+              <label class="label" for="data_fine">Data fine</label>
+              <input type="date" id="data_fine" value="${r.data_fine || r.data_inizio}" />
               <div class="hint">Sono selezionabili solo date a partire da 5 giorni dopo la richiesta, salvo urgenza.</div>
             </div>
 
@@ -403,7 +407,7 @@
           </div>
           <div>
             <span class="label">Data del permesso</span>
-            <div class="value-large">${formatData(r.data_sospensione)}</div>
+            <div class="value-large">${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</div>
           </div>
           <div>
             <span class="label">Tipo permesso</span>
@@ -474,7 +478,7 @@
       // Box lavorazione
       if (r.lavorazione) {
         const esitoLabel = r.lavorazione.esito_marcatempo === 'confermata'
-          ? 'Confermata con marcatempo'
+          ? 'Confermata'
           : 'Discrepanza con marcatempo';
         html += `
           <div class="info-box info-box-lavorata">

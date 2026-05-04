@@ -228,7 +228,7 @@
       <table class="storico-table">
         <thead>
           <tr>
-            <th data-col="data_sospensione" onclick="ordinaPer('data_sospensione')">
+            <th data-col="data_inizio" onclick="ordinaPer('data_inizio')">
               Data permesso <span class="sort-arrow">&#9650;&#9660;</span>
             </th>
             <th data-col="motivazione" onclick="ordinaPer('motivazione')">
@@ -272,7 +272,7 @@
     // =========================================================
     // Stato della vista
     // =========================================================
-    let sortColumn = 'data_sospensione';
+    let sortColumn = 'data_inizio';
     let sortDir = 'asc';  // 'asc' o 'desc'
 
     // =========================================================
@@ -365,8 +365,8 @@
       const { da, a } = calcolaRangePeriodo(periodo);
 
       let filtrate = richieste.filter(r => {
-        if (da && r.data_sospensione < da) return false;
-        if (a && r.data_sospensione > a) return false;
+        if (da && r.data_inizio < da) return false;
+        if (a && r.data_inizio > a) return false;
         if (stato && r.stato !== stato) return false;
         return true;
       });
@@ -390,7 +390,7 @@
       document.getElementById('dataDa').value = '';
       document.getElementById('dataA').value = '';
       document.getElementById('filtriRange').classList.remove('visible');
-      sortColumn = 'data_sospensione';
+      sortColumn = 'data_inizio';
       sortDir = 'asc';
       applicaFiltri();
     }
@@ -443,7 +443,7 @@
 
         return `
           <tr>
-            <td>${formatData(r.data_sospensione)}</td>
+            <td>${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</td>
             <td>${r.motivazione}</td>
             <td>${formatTipo(r.tipo)}</td>
             <td>${formatDurata(r.durata)}</td>
@@ -461,7 +461,7 @@
     function annullaRichiesta(id) {
       const r = richieste.find(x => x.id === id);
       if (!r) return;
-      const dataPermesso = formatData(r.data_sospensione);
+      const dataPermesso = formatData(r.data_inizio);
       if (confirm(`Confermi l'annullamento della richiesta #${id} del ${dataPermesso}?\n\nL'azione non è reversibile.`)) {
         alert('Prototipo: richiesta annullata.\n\nNel sistema vero la richiesta passerebbe in stato "annullata" e scomparirebbe dalla lista delle richieste in attesa.');
         // Nel sistema vero qui ci sarebbe una chiamata al server e un refresh.

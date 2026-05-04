@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestione template email - Supervisore - PDP</title>
+  <link rel="stylesheet" href="../assets/style.css"/>
+  <style>
+.nav-secondaria{margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid #e5e7eb;display:flex;gap:16px;font-size:14px;flex-wrap:wrap}
+.nav-secondaria a{color:#6b7280;text-decoration:none;padding:6px 0}
+.nav-secondaria a.attivo{color:#0f4c81;font-weight:600;border-bottom:2px solid #0f4c81}
+.nav-secondaria a:hover{color:#0f4c81}
+.tab{width:100%;border-collapse:collapse;font-size:14px}
+.tab thead th{text-align:left;padding:12px 10px;background:#f8fafc;border-bottom:2px solid #dbe3ea;font-weight:600;color:#374151;white-space:nowrap}
+.tab tbody td{padding:12px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
+.tab tbody tr:hover{background:#f8fafc}
+.action-link{color:#0f4c81;text-decoration:none;font-weight:500;font-size:13px;cursor:pointer;background:none;border:none;padding:0;font-family:inherit}
+.action-link:hover{text-decoration:underline}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:0.3px}
+.tag-tipo{background:#eff6ff;color:#1e40af;text-transform:none}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.visible{display:flex}
+.modal{background:white;border-radius:14px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,0.3)}
+.modal-header{padding:20px 24px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{margin:0;font-size:18px}
+.modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:#6b7280;line-height:1;padding:0 4px}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px}
+.field{margin-bottom:16px}
+.corpo-preview{max-height:60px;overflow:hidden;font-size:13px;color:#6b7280;line-height:1.4}
+.token-list{background:#f8fafc;border:1px solid #dbe3ea;border-radius:8px;padding:14px 16px;margin-top:12px;font-size:13px}
+.token-list code{background:#eef4fa;padding:2px 6px;border-radius:4px;font-size:12px;color:#0f4c81}
+.token-list p{margin:0 0 6px 0;color:#6b7280}
+  </style>
+</head>
+<body>
+  <div class="container container-wide">
+    <div class="header">
+      <img class="header-logo" src="../assets/logo.svg" alt="PDP"/>
+      <div class="header-text">
+        <h1>Supervisore</h1>
+        <p>Sandro Costa &middot; Sistemi &middot; PDP Box Doccia</p>
+      </div>
+    </div>
+    <div class="content">
+      <nav class="nav-secondaria">
+        <a href="coda-email.html">Coda email</a>
+        <a href="utenti.html">Utenti</a>
+        <a href="motivazioni.html">Motivazioni</a>
+        <a href="causali.html">Causali</a>
+        <a href="templates-email.html" class="attivo">Template email</a>
+      </nav>
+
+      <h2 style="margin:0 0 16px 0;">Gestione template email</h2>
+      <p style="font-size:14px;color:#6b7280;margin:0 0 20px 0;">
+        Modifica l'oggetto e il corpo delle email inviate automaticamente dal sistema. I template supportano token/placeholder
+        che vengono sostituiti automaticamente con i dati reali al momento dell'invio.
+      </p>
+
+      <table class="tab">
+        <thead><tr><th>Tipo email</th><th>Oggetto</th><th>Anteprima corpo</th><th>Azioni</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+
+      <div class="footer-note">
+        I template controllano solo l'<strong>oggetto</strong> e il <strong>corpo testuale</strong> delle email.
+        Il layout grafico (header blu, footer con disclaimer, logo) è fisso e gestito dallo sviluppatore.
+      </div>
+
+      <div class="modal-overlay" id="modale">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 id="modaleTitolo">Modifica template</h3>
+            <button class="modal-close" onclick="chiudi()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="field">
+              <label class="label">Tipo email</label>
+              <div id="fTipo" style="font-weight:600;padding:8px 0;"></div>
+            </div>
+            <div class="field">
+              <label class="label" for="fOggetto">Oggetto</label>
+              <input type="text" id="fOggetto"/>
+              <div class="hint">Puoi usare i token tra graffe, es. {nome_dipendente}.</div>
+            </div>
+            <div class="field">
+              <label class="label" for="fCorpo">Corpo dell'email</label>
+              <textarea id="fCorpo" style="min-height:180px;font-family:monospace;font-size:13px;"></textarea>
+              <div class="hint">HTML semplice. I token tra graffe vengono sostituiti con i dati reali.</div>
+            </div>
+            <div class="token-list">
+              <p><strong>Token disponibili per questo template:</strong></p>
+              <div id="tokenDisponibili"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="chiudi()">Annulla</button>
+            <button class="btn btn-primary" onclick="salva()">Salva</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script>
+    const TEMPLATES = [
+      { tipo: 'conferma_ricezione', label: 'Conferma ricezione', oggetto: 'Conferma ricezione richiesta permesso #{id_richiesta}',
+        corpo: '<p>Gentile <strong>{nome_dipendente}</strong>,</p>\n<p>abbiamo ricevuto la tua richiesta di permesso per il {data_inizio}. La richiesta è stata trasmessa al direttore di produzione per la valutazione.</p>',
+        tokens: ['nome_dipendente','cognome_dipendente','id_richiesta','data_inizio','data_fine','ora_inizio','ora_fine','motivazione'] },
+      { tipo: 'notifica_direttore', label: 'Notifica al direttore', oggetto: 'Nuova richiesta permesso #{id_richiesta} — {nome_dipendente} {cognome_dipendente}',
+        corpo: '<p>Gentile <strong>{nome_direttore}</strong>,</p>\n<p>è stata inserita una nuova richiesta di permesso da <strong>{nome_dipendente} {cognome_dipendente}</strong> ({reparto}) per il {data_inizio}.</p>\n<p>Motivazione: {motivazione}</p>',
+        tokens: ['nome_direttore','nome_dipendente','cognome_dipendente','reparto','id_richiesta','data_inizio','data_fine','ora_inizio','ora_fine','motivazione','note','urgente'] },
+      { tipo: 'esito_dipendente', label: 'Esito al dipendente', oggetto: 'Richiesta permesso #{id_richiesta}: {stato}',
+        corpo: '<p>Gentile <strong>{nome_dipendente}</strong>,</p>\n<p>la tua richiesta di permesso per il {data_inizio} è stata <strong>{stato}</strong>.</p>\n<p>Causale: {causale}</p>\n<p>{note_decisione}</p>',
+        tokens: ['nome_dipendente','cognome_dipendente','id_richiesta','data_inizio','data_fine','motivazione','stato','causale','note_decisione','nome_direttore'] },
+      { tipo: 'esito_amministrazione', label: 'Notifica amministrazione', oggetto: 'Richiesta #{id_richiesta} da lavorare — {nome_dipendente}',
+        corpo: '<p>Gentile <strong>{nome_operatore}</strong>,</p>\n<p>la richiesta di permesso #{id_richiesta} di {nome_dipendente} {cognome_dipendente} è stata approvata ed è pronta per il riscontro.</p>',
+        tokens: ['nome_operatore','nome_dipendente','cognome_dipendente','id_richiesta','data_inizio','data_fine','motivazione','causale','nome_direttore'] },
+      { tipo: 'codice_2fa', label: 'Codice di verifica 2FA', oggetto: 'Codice di verifica accesso PDP Permessi',
+        corpo: '<p>Gentile <strong>{nome_utente}</strong>,</p>\n<p>il tuo codice di verifica è: <strong>{codice_otp}</strong></p>\n<p>Il codice scade tra 10 minuti.</p>',
+        tokens: ['nome_utente','codice_otp'] },
+    ];
+
+    let modTemplate = null;
+
+    function render() {
+      const tb = document.getElementById('tbody');
+      tb.innerHTML = TEMPLATES.map(t => {
+        const preview = t.corpo.replace(/<[^>]*>/g, '').replace(/\\n/g, ' ').substring(0, 100) + '...';
+        return `<tr>
+          <td><span class="tag tag-tipo">${t.label}</span></td>
+          <td style="font-weight:500;">${t.oggetto}</td>
+          <td class="corpo-preview">${preview}</td>
+          <td><button class="action-link" onclick="apriForm('${t.tipo}')">Modifica</button></td>
+        </tr>`;
+      }).join('');
+    }
+
+    function apriForm(tipo) {
+      modTemplate = TEMPLATES.find(t => t.tipo === tipo);
+      if (!modTemplate) return;
+      document.getElementById('modaleTitolo').textContent = 'Modifica template: ' + modTemplate.label;
+      document.getElementById('fTipo').textContent = modTemplate.label;
+      document.getElementById('fOggetto').value = modTemplate.oggetto;
+      document.getElementById('fCorpo').value = modTemplate.corpo.replace(/\\n/g, '\n');
+      document.getElementById('tokenDisponibili').innerHTML = modTemplate.tokens.map(t => '<code>{' + t + '}</code>').join(' ');
+      document.getElementById('modale').classList.add('visible');
+    }
+
+    function chiudi() { document.getElementById('modale').classList.remove('visible'); }
+
+    function salva() {
+      const ogg = document.getElementById('fOggetto').value.trim();
+      const corpo = document.getElementById('fCorpo').value.trim();
+      if (!ogg || !corpo) { alert("Oggetto e corpo sono obbligatori."); return; }
+      modTemplate.oggetto = ogg;
+      modTemplate.corpo = corpo.replace(/\n/g, '\\n');
+      alert('Template aggiornato.\n\nNel sistema vero il template verrebbe salvato nel database e usato per le prossime email generate.');
+      chiudi();
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

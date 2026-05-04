@@ -185,7 +185,7 @@
       <table class="storico-table">
         <thead>
           <tr>
-            <th data-col="data_sospensione" onclick="ordinaPer('data_sospensione')">
+            <th data-col="data_inizio" onclick="ordinaPer('data_inizio')">
               Data permesso <span class="sort-arrow">&#9650;&#9660;</span>
             </th>
             <th data-col="dipendente" onclick="ordinaPer('dipendente')">
@@ -236,7 +236,7 @@
     // Stato della vista
     // =========================================================
     // Default: ordinamento per data permesso crescente
-    let sortColumn = 'data_sospensione';
+    let sortColumn = 'data_inizio';
     let sortDir = 'asc';
 
     // =========================================================
@@ -330,7 +330,7 @@
 
         return `
           <tr>
-            <td>${formatData(r.data_sospensione)}</td>
+            <td>${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</td>
             <td class="dipendente-cell">
               <div class="dip-nome">${dip.nome}</div>
               <div class="dip-reparto">${dip.reparto}</div>

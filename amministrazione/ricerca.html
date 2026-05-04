@@ -304,7 +304,7 @@
       <table class="storico-table">
         <thead>
           <tr>
-            <th data-col="data_sospensione" onclick="ordinaPer('data_sospensione')">
+            <th data-col="data_inizio" onclick="ordinaPer('data_inizio')">
               Data permesso <span class="sort-arrow">&#9650;&#9660;</span>
             </th>
             <th data-col="dipendente" onclick="ordinaPer('dipendente')">
@@ -350,7 +350,7 @@
     // =========================================================
     // Stato della vista
     // =========================================================
-    let sortColumn = 'data_sospensione';
+    let sortColumn = 'data_inizio';
     let sortDir = 'desc'; // Ricerca: default decrescente (più recenti prima)
     let righeFiltrate = [];
 
@@ -472,8 +472,8 @@
       const { da, a } = calcolaRangePeriodo(periodo);
 
       righeFiltrate = window.RICHIESTE_DEMO.filter(r => {
-        if (da && r.data_sospensione < da) return false;
-        if (a && r.data_sospensione > a) return false;
+        if (da && r.data_inizio < da) return false;
+        if (a && r.data_inizio > a) return false;
         if (stato && r.stato !== stato) return false;
         if (dipId && r.dipendente_id !== parseInt(dipId, 10)) return false;
         if (motivazione && r.motivazione !== motivazione) return false;
@@ -527,7 +527,7 @@
       document.getElementById('dataDa').value = '';
       document.getElementById('dataA').value = '';
       document.getElementById('filtriRange').classList.remove('visible');
-      sortColumn = 'data_sospensione';
+      sortColumn = 'data_inizio';
       sortDir = 'desc';
       applicaFiltri();
     }
@@ -577,7 +577,7 @@
 
         let riscontroIcon;
         if (r.lavorazione && r.lavorazione.esito_marcatempo === 'confermata') {
-          riscontroIcon = `<span class="riscontro-icon riscontro-confermata" title="Confermata con marcatempo">✓</span>`;
+          riscontroIcon = `<span class="riscontro-icon riscontro-confermata" title="Confermata">✓</span>`;
         } else if (r.lavorazione && r.lavorazione.esito_marcatempo === 'discrepanza') {
           riscontroIcon = `<span class="riscontro-icon riscontro-discrepanza" title="Discrepanza con marcatempo">⚠</span>`;
         } else {
@@ -586,7 +586,7 @@
 
         return `
           <tr>
-            <td>${formatData(r.data_sospensione)}</td>
+            <td>${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</td>
             <td class="dipendente-cell">
               <div class="dip-nome">${dip.nome}</div>
             </td>
@@ -659,7 +659,7 @@
 
         return [
           r.id,
-          formatData(r.data_sospensione),
+          formatData(r.data_inizio),
           dip.nome,
           dip.reparto,
           r.motivazione,

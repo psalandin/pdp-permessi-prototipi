@@ -300,7 +300,7 @@
       const sel = document.getElementById('selettoreRichiesta');
       sel.innerHTML = window.RICHIESTE_DEMO.map(r => {
         const dip = window.getDipendente(r.dipendente_id) || { nome: '?' };
-        const label = `#${r.id} - ${dip.nome} - ${formatStato(r.stato)}: ${r.motivazione} del ${formatData(r.data_sospensione)}${r.urgente ? ' [URG]' : ''}`;
+        const label = `#${r.id} - ${dip.nome} - ${formatStato(r.stato)}: ${r.motivazione} del ${formatData(r.data_inizio)}${r.urgente ? ' [URG]' : ''}`;
         const selected = r.id === idCorrente ? 'selected' : '';
         return `<option value="${r.id}" ${selected}>${label}</option>`;
       }).join('');
@@ -369,7 +369,7 @@
           </div>
           <div>
             <span class="label">Data del permesso</span>
-            <div class="value-large">${formatData(r.data_sospensione)}</div>
+            <div class="value-large">${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</div>
           </div>
           <div>
             <span class="label">Tipo permesso</span>
@@ -458,7 +458,7 @@
             <div class="esito-group">
               <label class="esito-option confermata">
                 <input type="radio" name="esito" value="confermata" />
-                ✓ Confermata con marcatempo
+                ✓ Confermata
               </label>
               <label class="esito-option discrepanza">
                 <input type="radio" name="esito" value="discrepanza" />
@@ -490,7 +490,7 @@
     // =========================================================
     function renderBoxLavorazione(r) {
       const esitoLabel = r.lavorazione.esito_marcatempo === 'confermata'
-        ? 'Confermata con marcatempo'
+        ? 'Confermata'
         : 'Discrepanza con marcatempo';
       return `
         <div class="info-box info-box-lavorata">
