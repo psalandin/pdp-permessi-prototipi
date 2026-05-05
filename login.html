@@ -325,22 +325,22 @@
       nascondiErrore();
 
       if (flusso === 'on') {
-        // Vado alla verifica 2FA, passo ruolo ed email nella query string
-        // così la pagina 2FA può mostrare l'email giusta e fare il redirect corretto
         const params = new URLSearchParams({
           email: utente.email,
           ruolo: utente.ruolo,
+          uid: utente.id,
         });
         window.location.href = `login-2fa.html?${params.toString()}`;
       } else {
-        redirectPerRuolo(utente.ruolo);
+        redirectPerRuolo(utente.ruolo, utente.id);
       }
     }
 
-    function redirectPerRuolo(ruolo) {
+    function redirectPerRuolo(ruolo, uid) {
+      const q = uid ? '?uid=' + uid : '';
       switch (ruolo) {
         case 'dipendente':
-          window.location.href = 'dipendente/storico.html';
+          window.location.href = 'dipendente/storico.html' + q;
           break;
         case 'direttore':
           window.location.href = 'direttore/dashboard.html';
@@ -357,8 +357,8 @@
     }
 
     function accessoRapido(ruolo) {
-      // L'accesso rapido bypassa il form: nessun PIN, nessuna 2FA
-      redirectPerRuolo(ruolo);
+      const defaultUids = { dipendente: 1, direttore: 10, amministrazione: 11, supervisore: 12 };
+      redirectPerRuolo(ruolo, defaultUids[ruolo]);
     }
   </script>
 </body>

@@ -170,18 +170,18 @@
         <div class="user-grid">
           <div>
             <span class="label">Dipendente</span>
-            <div class="value">Mario Rossi</div>
+            <div class="value" id="dipNome">—</div>
           </div>
           <div>
             <span class="label">Email</span>
-            <div class="value">m.rossi@pdpboxdoccia.com</div>
+            <div class="value" id="dipEmail">—</div>
           </div>
         </div>
       </div>
 
       <div class="toolbar">
         <h2 style="margin: 0;">Le mie richieste</h2>
-        <a href="nuova-richiesta.html" class="btn btn-primary" style="text-decoration: none;">+ Nuova richiesta</a>
+        <a href="nuova-richiesta.html?uid=${DIPENDENTE_CORRENTE_ID}" class="btn btn-primary" style="text-decoration: none;">+ Nuova richiesta</a>
       </div>
 
       <!-- Filtri -->
@@ -264,10 +264,17 @@
     // =========================================================
     // Dataset condiviso (caricato da assets/data.js)
     // =========================================================
-    // Il dipendente vede solo le proprie richieste. In questo prototipo
-    // il dipendente corrente è Mario Rossi (id: 1).
-    const DIPENDENTE_CORRENTE_ID = 1;
+    // =========================================================
+    // Dipendente corrente: letto dalla query string ?uid=X
+    // =========================================================
+    const params = new URLSearchParams(window.location.search);
+    const DIPENDENTE_CORRENTE_ID = parseInt(params.get('uid'), 10) || 1;
+    const dipCorr = window.getDipendente(DIPENDENTE_CORRENTE_ID) || { nome: 'Utente', email: '—' };
     const richieste = window.RICHIESTE_DEMO.filter(r => r.dipendente_id === DIPENDENTE_CORRENTE_ID);
+
+    // Popolo user-box
+    document.getElementById('dipNome').textContent = dipCorr.nome;
+    document.getElementById('dipEmail').textContent = dipCorr.email;
 
     // =========================================================
     // Stato della vista
@@ -437,8 +444,8 @@
 
       tbody.innerHTML = righe.map(r => {
         const azioni = r.stato === 'in_attesa'
-          ? `<a href="dettaglio-richiesta.html?id=${r.id}" class="action-link">Modifica</a><a href="#" class="action-link danger" onclick="event.preventDefault(); annullaRichiesta(${r.id});">Annulla</a>`
-          : `<a href="dettaglio-richiesta.html?id=${r.id}" class="action-link">Dettaglio</a>`;
+          ? `<a href="dettaglio-richiesta.html?id=${r.id}&uid=${DIPENDENTE_CORRENTE_ID}" class="action-link">Modifica</a><a href="#" class="action-link danger" onclick="event.preventDefault(); annullaRichiesta(${r.id});">Annulla</a>`
+          : `<a href="dettaglio-richiesta.html?id=${r.id}&uid=${DIPENDENTE_CORRENTE_ID}" class="action-link">Dettaglio</a>`;
 
         const urgIcon = r.urgente ? `<span class="urgente-icon">URG</span>` : '';
 

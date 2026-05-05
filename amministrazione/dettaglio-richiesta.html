@@ -283,6 +283,20 @@
       return `${ore.toString().replace('.', ',')} ore`;
     }
 
+    function formatPeriodo(r) {
+      if (r.tipo === 'giornata_intera') {
+        if (r.data_fine && r.data_fine !== r.data_inizio) {
+          return `Dal ${formatData(r.data_inizio)} al ${formatData(r.data_fine)}`;
+        }
+        return formatData(r.data_inizio);
+      }
+      // permesso_orario
+      let s = `Dal giorno ${formatData(r.data_inizio)} \u00a0\u00a0ore ${r.ora_inizio || '—'}`;
+      s += `<br>Al giorno ${formatData(r.data_fine || r.data_inizio)} \u00a0\u00a0ore ${r.ora_fine || '—'}`;
+      return s;
+    }
+
+
     function formatStato(stato) {
       const mappa = {
         in_attesa: 'In attesa',
@@ -369,10 +383,6 @@
             <div class="value-large">${r.motivazione}</div>
           </div>
           <div>
-            <span class="label">Data del permesso</span>
-            <div class="value-large">${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</div>
-          </div>
-          <div>
             <span class="label">Tipo permesso</span>
             <div class="value-large">${formatTipo(r.tipo)}</div>
           </div>
@@ -380,11 +390,10 @@
             <span class="label">Durata</span>
             <div class="value-large">${formatDurata(r.durata)}</div>
           </div>
-          ${r.tipo === 'permesso_orario' ? `
           <div class="full">
-            <span class="label">Orario</span>
-            <div class="value-large">dalle ${r.ora_inizio} alle ${r.ora_fine}</div>
-          </div>` : ''}
+            <span class="label">Periodo</span>
+            <div class="value-large">${formatPeriodo(r)}</div>
+          </div>
           ${r.urgente ? `
           <div class="full">
             <span class="label">Urgenza</span>

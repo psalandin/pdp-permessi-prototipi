@@ -21,11 +21,11 @@
         <div class="user-grid">
           <div>
             <span class="label">Dipendente</span>
-            <div class="value">Mario Rossi</div>
+            <div class="value" id="dipNome">—</div>
           </div>
           <div>
             <span class="label">Email</span>
-            <div class="value">m.rossi@pdpboxdoccia.com</div>
+            <div class="value" id="dipEmail">—</div>
           </div>
           <div>
             <span class="label">Data richiesta</span>
@@ -56,19 +56,7 @@
             </select>
           </div>
 
-          <!-- Date del permesso -->
-          <div>
-            <label class="label" for="data_inizio">Data inizio</label>
-            <input type="date" id="data_inizio" />
-            <div class="hint">Almeno 5 giorni dalla richiesta, salvo urgenza.</div>
-          </div>
-          <div>
-            <label class="label" for="data_fine">Data fine</label>
-            <input type="date" id="data_fine" />
-            <div class="hint">Può coincidere con la data inizio.</div>
-          </div>
-
-          <!-- Tipo permesso: radio button -->
+          <!-- Tipo permesso: radio button (prima delle date) -->
           <div class="full">
             <label class="label">Tipo di permesso</label>
             <div class="radio-group">
@@ -83,28 +71,45 @@
             </div>
           </div>
 
-          <!-- Campi orario condizionali -->
+          <!-- Riga inizio: data + ora affiancate -->
           <div class="full">
-            <div id="orarioFields" class="orario-fields">
+            <div class="date-time-row" id="rowInizio">
               <div>
+                <label class="label" for="data_inizio">Data inizio</label>
+                <input type="date" id="data_inizio" />
+                <div class="hint">Almeno 5 giorni dalla richiesta, salvo urgenza.</div>
+              </div>
+              <div class="ora-field">
                 <label class="label" for="ora_inizio">Ora inizio</label>
                 <select id="ora_inizio" onchange="calcolaDurata()">
                   <option value="">--</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          <!-- Riga fine: data + ora affiancate -->
+          <div class="full">
+            <div class="date-time-row" id="rowFine">
               <div>
+                <label class="label" for="data_fine">Data fine</label>
+                <input type="date" id="data_fine" />
+                <div class="hint">Può coincidere con la data inizio.</div>
+              </div>
+              <div class="ora-field">
                 <label class="label" for="ora_fine">Ora fine</label>
                 <select id="ora_fine" onchange="calcolaDurata()">
                   <option value="">--</option>
                 </select>
               </div>
-              <div class="durata-calcolata">
-                <label class="label">Durata calcolata</label>
-                <div class="durata-value" id="durataValue">&mdash;</div>
-              </div>
             </div>
-            <div class="hint" id="orarioHint" style="display:none;">
-              Se data inizio e data fine coincidono, ora fine deve essere almeno 30 minuti dopo ora inizio.
+          </div>
+
+          <!-- Durata calcolata (sempre visibile) -->
+          <div class="full">
+            <div class="durata-calcolata">
+              <label class="label">Durata calcolata</label>
+              <div class="durata-value" id="durataValue">&mdash;</div>
             </div>
           </div>
 
@@ -137,6 +142,13 @@
   </div>
 
   <script>
+    // Dipendente corrente
+    const params = new URLSearchParams(window.location.search);
+    const UID = parseInt(params.get('uid'), 10) || 1;
+    const dipCorr = window.getDipendente(UID) || { nome: 'Utente', email: '—' };
+    document.getElementById('dipNome').textContent = dipCorr.nome;
+    document.getElementById('dipEmail').textContent = dipCorr.email;
+
     function toIsoDate(d) {
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -205,18 +217,14 @@
 
     function toggleOrario() {
       const tipo = document.querySelector('input[name="tipo_permesso"]:checked').value;
-      const fields = document.getElementById('orarioFields');
-      const hint = document.getElementById('orarioHint');
-      if (tipo === 'permesso_orario') {
-        fields.classList.add('visible');
-        hint.style.display = 'block';
-      } else {
-        fields.classList.remove('visible');
-        hint.style.display = 'none';
+      const isOrario = tipo === 'permesso_orario';
+      document.getElementById('rowInizio').classList.toggle('with-time', isOrario);
+      document.getElementById('rowFine').classList.toggle('with-time', isOrario);
+      if (!isOrario) {
         document.getElementById('ora_inizio').value = '';
         document.getElementById('ora_fine').value = '';
-        document.getElementById('durataValue').innerHTML = '&mdash;';
       }
+      calcolaDurata();
     }
 
     function calcolaDurata() {

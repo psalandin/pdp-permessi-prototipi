@@ -209,6 +209,26 @@ textarea {
   display: grid;
 }
 
+/* ---------- Riga data + ora affiancate ---------- */
+.date-time-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.date-time-row.with-time {
+  grid-template-columns: 1fr 160px;
+}
+
+.date-time-row .ora-field {
+  display: none;
+}
+
+.date-time-row.with-time .ora-field {
+  display: block;
+}
+
 .durata-calcolata {
   display: flex;
   flex-direction: column;

@@ -170,6 +170,11 @@
   </div>
 
   <script>
+    // Dipendente corrente
+    const _params = new URLSearchParams(window.location.search);
+    const UID = parseInt(_params.get('uid'), 10) || 1;
+    const dipCorr = window.getDipendente(UID) || { nome: 'Utente', email: '—' };
+
     function toIsoDate(d) {
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -191,6 +196,20 @@
       if (ore === 1) return '1 ora';
       return `${ore.toString().replace('.', ',')} ore`;
     }
+
+    function formatPeriodo(r) {
+      if (r.tipo === 'giornata_intera') {
+        if (r.data_fine && r.data_fine !== r.data_inizio) {
+          return `Dal ${formatData(r.data_inizio)} al ${formatData(r.data_fine)}`;
+        }
+        return formatData(r.data_inizio);
+      }
+      // permesso_orario
+      let s = `Dal giorno ${formatData(r.data_inizio)} \u00a0\u00a0ore ${r.ora_inizio || '—'}`;
+      s += `<br>Al giorno ${formatData(r.data_fine || r.data_inizio)} \u00a0\u00a0ore ${r.ora_fine || '—'}`;
+      return s;
+    }
+
 
     function formatStato(stato) {
       const mappa = {
@@ -236,7 +255,7 @@
           <div class="not-found">
             <h2>Richiesta non trovata</h2>
             <p>L'ID richiesto non esiste nel dataset di esempio.</p>
-            <a href="storico.html" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
+            <a href="storico.html?uid=${UID}" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
           </div>
         `;
         return;
@@ -250,11 +269,11 @@
           <div class="user-grid">
             <div>
               <span class="label">Dipendente</span>
-              <div class="value">Mario Rossi</div>
+              <div class="value">${dipCorr.nome}</div>
             </div>
             <div>
               <span class="label">Email</span>
-              <div class="value">m.rossi@pdpboxdoccia.com</div>
+              <div class="value">${dipCorr.email}</div>
             </div>
           </div>
         </div>
@@ -323,16 +342,6 @@
             </div>
 
             <div class="full">
-              <label class="label" for="data_inizio">Data inizio</label>
-              <input type="date" id="data_inizio" value="${r.data_inizio}" />
-            </div>
-            <div>
-              <label class="label" for="data_fine">Data fine</label>
-              <input type="date" id="data_fine" value="${r.data_fine || r.data_inizio}" />
-              <div class="hint">Sono selezionabili solo date a partire da 5 giorni dopo la richiesta, salvo urgenza.</div>
-            </div>
-
-            <div class="full">
               <label class="label">Tipo di permesso</label>
               <div class="radio-group">
                 <label class="radio-option">
@@ -347,25 +356,42 @@
             </div>
 
             <div class="full">
-              <div id="orarioFields" class="orario-fields ${r.tipo === 'permesso_orario' ? 'visible' : ''}">
+              <div class="date-time-row ${r.tipo === 'permesso_orario' ? 'with-time' : ''}" id="rowInizio">
                 <div>
+                  <label class="label" for="data_inizio">Data inizio</label>
+                  <input type="date" id="data_inizio" value="${r.data_inizio}" />
+                  <div class="hint">Almeno 5 giorni dalla richiesta, salvo urgenza.</div>
+                </div>
+                <div class="ora-field">
                   <label class="label" for="ora_inizio">Ora inizio</label>
                   <select id="ora_inizio" onchange="calcolaDurata()">
                     <option value="">--</option>
                     ${oreInizio.join('')}
                   </select>
                 </div>
+              </div>
+            </div>
+
+            <div class="full">
+              <div class="date-time-row ${r.tipo === 'permesso_orario' ? 'with-time' : ''}" id="rowFine">
                 <div>
+                  <label class="label" for="data_fine">Data fine</label>
+                  <input type="date" id="data_fine" value="${r.data_fine || r.data_inizio}" />
+                </div>
+                <div class="ora-field">
                   <label class="label" for="ora_fine">Ora fine</label>
                   <select id="ora_fine" onchange="calcolaDurata()">
                     <option value="">--</option>
                     ${oreFine.join('')}
                   </select>
                 </div>
-                <div class="durata-calcolata">
-                  <label class="label">Durata calcolata</label>
-                  <div class="durata-value" id="durataValue">&mdash;</div>
-                </div>
+              </div>
+            </div>
+
+            <div class="full">
+              <div class="durata-calcolata">
+                <label class="label">Durata calcolata</label>
+                <div class="durata-value" id="durataValue">&mdash;</div>
               </div>
             </div>
 
@@ -388,7 +414,7 @@
               <button type="button" class="btn btn-danger" onclick="if(confirm('Confermi l\\'annullamento della richiesta?')) alert('Prototipo: richiesta annullata');">Annulla richiesta</button>
             </div>
             <div class="actions-right">
-              <a href="storico.html" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
+              <a href="storico.html?uid=${UID}" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
               <button type="submit" class="btn btn-primary">Salva modifiche</button>
             </div>
           </div>
@@ -407,10 +433,6 @@
             <div class="value-large">${r.motivazione}</div>
           </div>
           <div>
-            <span class="label">Data del permesso</span>
-            <div class="value-large">${formatData(r.data_inizio)}${r.data_fine && r.data_fine !== r.data_inizio ? ' — '+formatData(r.data_fine) : ''}</div>
-          </div>
-          <div>
             <span class="label">Tipo permesso</span>
             <div class="value-large">${formatTipo(r.tipo)}</div>
           </div>
@@ -418,11 +440,10 @@
             <span class="label">Durata</span>
             <div class="value-large">${formatDurata(r.durata)}</div>
           </div>
-          ${r.tipo === 'permesso_orario' ? `
           <div class="full">
-            <span class="label">Orario</span>
-            <div class="value-large">dalle ${r.ora_inizio} alle ${r.ora_fine}</div>
-          </div>` : ''}
+            <span class="label">Periodo</span>
+            <div class="value-large">${formatPeriodo(r)}</div>
+          </div>
           ${r.urgente ? `
           <div class="full">
             <span class="label">Urgenza</span>
@@ -508,7 +529,7 @@
       // Azioni
       html += `
         <div class="actions">
-          <a href="storico.html" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
+          <a href="storico.html?uid=${UID}" class="btn btn-secondary" style="text-decoration: none;">Torna allo storico</a>
         </div>
       `;
 
@@ -538,27 +559,31 @@
       const urgEl = document.getElementById('urgente');
       if (!urgEl) return;
       const urgente = urgEl.checked;
-      const dataInput = document.getElementById('data');
       const nuovoMin = urgente ? DATA_MIN_OGGI : DATA_MIN_STANDARD;
-      dataInput.setAttribute('min', nuovoMin);
-      if (dataInput.value && dataInput.value < nuovoMin) {
-        dataInput.value = '';
-      }
+      ['data_inizio','data_fine'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.setAttribute('min', nuovoMin);
+          if (el.value && el.value < nuovoMin) el.value = '';
+        }
+      });
     }
 
     function toggleOrario() {
       const tipoEl = document.querySelector('input[name="tipo_permesso"]:checked');
       if (!tipoEl) return;
-      const tipo = tipoEl.value;
-      const fields = document.getElementById('orarioFields');
-      if (tipo === 'permesso_orario') {
-        fields.classList.add('visible');
-      } else {
-        fields.classList.remove('visible');
-        document.getElementById('ora_inizio').value = '';
-        document.getElementById('ora_fine').value = '';
-        document.getElementById('durataValue').innerHTML = '&mdash;';
+      const isOrario = tipoEl.value === 'permesso_orario';
+      const ri = document.getElementById('rowInizio');
+      const rf = document.getElementById('rowFine');
+      if (ri) ri.classList.toggle('with-time', isOrario);
+      if (rf) rf.classList.toggle('with-time', isOrario);
+      if (!isOrario) {
+        const oi = document.getElementById('ora_inizio');
+        const of_ = document.getElementById('ora_fine');
+        if (oi) oi.value = '';
+        if (of_) of_.value = '';
       }
+      calcolaDurata();
     }
 
     function calcolaDurata() {

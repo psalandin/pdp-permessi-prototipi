@@ -177,12 +177,11 @@
   <script>
     const CODICE_CORRETTO = '123456';
 
-    // Leggo email e ruolo dalla query string
     const params = new URLSearchParams(window.location.search);
     const emailUtente = params.get('email') || 'utente@pdpboxdoccia.com';
     const ruoloUtente = params.get('ruolo') || 'dipendente';
+    const uidUtente = params.get('uid') || '';
 
-    // Mostro l'email nella pagina
     document.getElementById('emailDisplay').textContent = emailUtente;
 
     function verificaCodice() {
@@ -197,13 +196,14 @@
       }
 
       errorBox.classList.remove('visible');
-      redirectPerRuolo(ruoloUtente);
+      redirectPerRuolo(ruoloUtente, uidUtente);
     }
 
-    function redirectPerRuolo(ruolo) {
+    function redirectPerRuolo(ruolo, uid) {
+      const q = uid ? '?uid=' + uid : '';
       switch (ruolo) {
         case 'dipendente':
-          window.location.href = 'dipendente/storico.html';
+          window.location.href = 'dipendente/storico.html' + q;
           break;
         case 'direttore':
           window.location.href = 'direttore/dashboard.html';
