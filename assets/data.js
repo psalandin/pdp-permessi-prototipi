@@ -342,22 +342,6 @@
         data: `${ANNO}-03-19`, ora: '11:00',
       },
     },
-  ];
-
-  // =========================================================
-  // Coda email (per il supervisore)
-  // =========================================================
-  window.EMAIL_DEMO = [
-    { id: 201, richiesta_id: 50, tipo: 'conferma_ricezione', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Conferma ricezione richiesta #50', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-05`, ora_creazione: '13:25', data_invio: `${ANNO}-04-05`, ora_invio: '13:25' },
-    { id: 202, richiesta_id: 50, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Nuova richiesta permesso #50', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-05`, ora_creazione: '13:25', data_invio: `${ANNO}-04-05`, ora_invio: '13:26' },
-    { id: 203, richiesta_id: 51, tipo: 'conferma_ricezione', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Conferma ricezione richiesta #51', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-07`, ora_creazione: '08:42', data_invio: `${ANNO}-04-07`, ora_invio: '08:42' },
-    { id: 204, richiesta_id: 51, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Nuova richiesta permesso #51', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-07`, ora_creazione: '08:42', data_invio: `${ANNO}-04-07`, ora_invio: '08:43' },
-    { id: 205, richiesta_id: null, tipo: 'codice_2fa', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Codice di verifica accesso', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-09`, ora_creazione: '07:30', data_invio: `${ANNO}-04-09`, ora_invio: '07:30' },
-    { id: 206, richiesta_id: 49, tipo: 'esito_dipendente', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Esito richiesta permesso #49', stato_invio: 'creata', tentativi: 0, errore: null, data_creazione: `${ANNO}-04-09`, ora_creazione: '09:15', data_invio: null, ora_invio: null },
-    { id: 207, richiesta_id: 49, tipo: 'esito_amministrazione', destinatario_nome: 'Giulia Neri', destinatario_email: 'g.neri@pdpboxdoccia.com', oggetto: 'Richiesta #49 da lavorare', stato_invio: 'creata', tentativi: 0, errore: null, data_creazione: `${ANNO}-04-09`, ora_creazione: '09:15', data_invio: null, ora_invio: null },
-    { id: 208, richiesta_id: 47, tipo: 'esito_dipendente', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Esito richiesta permesso #47', stato_invio: 'fallita', tentativi: 5, errore: 'SMTP timeout: server di destinazione non raggiungibile dopo 30s', data_creazione: `${ANNO}-03-16`, ora_creazione: '10:31', data_invio: null, ora_invio: null },
-    { id: 209, richiesta_id: 60, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Nuova richiesta permesso #60 (Anna Verdi)', stato_invio: 'inviata', tentativi: 2, errore: null, data_creazione: `${ANNO}-04-02`, ora_creazione: '09:15', data_invio: `${ANNO}-04-02`, ora_invio: '09:16' },
-    { id: 210, richiesta_id: 61, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'URGENTE: Nuova richiesta #61 (Paolo Russo)', stato_invio: 'fallita', tentativi: 5, errore: 'Connessione SMTP rifiutata dal server', data_creazione: `${ANNO}-04-08`, ora_creazione: '07:50', data_invio: null, ora_invio: null },
 
     // --- Casi speciali per il prototipo ---
     {
@@ -380,5 +364,21 @@
       tipo: 'permesso_orario', ora_inizio: '14:00', ora_fine: '10:00', durata: null,
       urgente: false, note: 'Assistenza continuativa. Durata non calcolabile automaticamente.',
     },
+  ];
+
+  // =========================================================
+  // Coda email (per il supervisore)
+  // =========================================================
+  window.EMAIL_DEMO = [
+    { id: 201, richiesta_id: 50, tipo: 'conferma_ricezione', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Conferma ricezione richiesta #50', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-05`, ora_creazione: '13:25', data_invio: `${ANNO}-04-05`, ora_invio: '13:25' },
+    { id: 202, richiesta_id: 50, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Nuova richiesta permesso #50', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-05`, ora_creazione: '13:25', data_invio: `${ANNO}-04-05`, ora_invio: '13:26' },
+    { id: 203, richiesta_id: 51, tipo: 'conferma_ricezione', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Conferma ricezione richiesta #51', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-07`, ora_creazione: '08:42', data_invio: `${ANNO}-04-07`, ora_invio: '08:42' },
+    { id: 204, richiesta_id: 51, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Nuova richiesta permesso #51', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-07`, ora_creazione: '08:42', data_invio: `${ANNO}-04-07`, ora_invio: '08:43' },
+    { id: 205, richiesta_id: null, tipo: 'codice_2fa', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Codice di verifica accesso', stato_invio: 'inviata', tentativi: 1, errore: null, data_creazione: `${ANNO}-04-09`, ora_creazione: '07:30', data_invio: `${ANNO}-04-09`, ora_invio: '07:30' },
+    { id: 206, richiesta_id: 49, tipo: 'esito_dipendente', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Esito richiesta permesso #49', stato_invio: 'creata', tentativi: 0, errore: null, data_creazione: `${ANNO}-04-09`, ora_creazione: '09:15', data_invio: null, ora_invio: null },
+    { id: 207, richiesta_id: 49, tipo: 'esito_amministrazione', destinatario_nome: 'Giulia Neri', destinatario_email: 'g.neri@pdpboxdoccia.com', oggetto: 'Richiesta #49 da lavorare', stato_invio: 'creata', tentativi: 0, errore: null, data_creazione: `${ANNO}-04-09`, ora_creazione: '09:15', data_invio: null, ora_invio: null },
+    { id: 208, richiesta_id: 47, tipo: 'esito_dipendente', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Esito richiesta permesso #47', stato_invio: 'fallita', tentativi: 5, errore: 'SMTP timeout: server di destinazione non raggiungibile dopo 30s', data_creazione: `${ANNO}-03-16`, ora_creazione: '10:31', data_invio: null, ora_invio: null },
+    { id: 209, richiesta_id: 60, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Nuova richiesta permesso #60 (Anna Verdi)', stato_invio: 'inviata', tentativi: 2, errore: null, data_creazione: `${ANNO}-04-02`, ora_creazione: '09:15', data_invio: `${ANNO}-04-02`, ora_invio: '09:16' },
+    { id: 210, richiesta_id: 61, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'URGENTE: Nuova richiesta #61 (Paolo Russo)', stato_invio: 'fallita', tentativi: 5, errore: 'Connessione SMTP rifiutata dal server', data_creazione: `${ANNO}-04-08`, ora_creazione: '07:50', data_invio: null, ora_invio: null },
   ];
 })();
