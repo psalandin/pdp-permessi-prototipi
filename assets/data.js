@@ -358,5 +358,27 @@
     { id: 208, richiesta_id: 47, tipo: 'esito_dipendente', destinatario_nome: 'Mario Rossi', destinatario_email: 'm.rossi@pdpboxdoccia.com', oggetto: 'Esito richiesta permesso #47', stato_invio: 'fallita', tentativi: 5, errore: 'SMTP timeout: server di destinazione non raggiungibile dopo 30s', data_creazione: `${ANNO}-03-16`, ora_creazione: '10:31', data_invio: null, ora_invio: null },
     { id: 209, richiesta_id: 60, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'Nuova richiesta permesso #60 (Anna Verdi)', stato_invio: 'inviata', tentativi: 2, errore: null, data_creazione: `${ANNO}-04-02`, ora_creazione: '09:15', data_invio: `${ANNO}-04-02`, ora_invio: '09:16' },
     { id: 210, richiesta_id: 61, tipo: 'notifica_direttore', destinatario_nome: 'Luca Bianchi', destinatario_email: 'l.bianchi@pdpboxdoccia.com', oggetto: 'URGENTE: Nuova richiesta #61 (Paolo Russo)', stato_invio: 'fallita', tentativi: 5, errore: 'Connessione SMTP rifiutata dal server', data_creazione: `${ANNO}-04-08`, ora_creazione: '07:50', data_invio: null, ora_invio: null },
+
+    // --- Casi speciali per il prototipo ---
+    {
+      id: 70, dipendente_id: 3,
+      stato: 'in_attesa',
+      data_creazione: `${ANNO}-04-09`, ora_creazione: '14:00',
+      motivazione: 'Permesso personale',
+      data_inizio: `${ANNO}-04-15`,
+      data_fine: `${ANNO}-04-16`,
+      tipo: 'permesso_orario', ora_inizio: '22:00', ora_fine: '06:00', durata: 8,
+      urgente: false, note: 'Turno notturno: uscita anticipata serale e rientro mattina dopo.',
+    },
+    {
+      id: 71, dipendente_id: 4,
+      stato: 'in_attesa',
+      data_creazione: `${ANNO}-04-09`, ora_creazione: '15:30',
+      motivazione: 'Legge 104',
+      data_inizio: `${ANNO}-04-20`,
+      data_fine: `${ANNO}-04-23`,
+      tipo: 'permesso_orario', ora_inizio: '14:00', ora_fine: '10:00', durata: null,
+      urgente: false, note: 'Assistenza continuativa. Durata non calcolabile automaticamente.',
+    },
   ];
 })();

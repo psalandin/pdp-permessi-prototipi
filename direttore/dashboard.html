@@ -351,6 +351,7 @@
     }
 
     function formatDurata(ore) {
+      if (ore === null || ore === undefined) return '\u2014';
       if (ore === 1) return '1 ora';
       return `${ore.toString().replace('.', ',')} ore`;
     }
