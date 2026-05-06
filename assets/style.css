@@ -214,7 +214,7 @@ textarea {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-  align-items: end;
+  align-items: start;
 }
 
 .date-time-row.with-time {
@@ -226,7 +226,8 @@ textarea {
 }
 
 .date-time-row.with-time .ora-field {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 .durata-calcolata {

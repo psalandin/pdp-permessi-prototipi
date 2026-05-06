@@ -547,9 +547,21 @@
     })();
 
     function inizializzaFormModifica(r) {
-      // Imposto il min della data in base allo stato dell'urgenza
+      // In modifica, salvo le date originali PRIMA di applicare il min,
+      // così non vengono cancellate retroattivamente.
+      // Il min serve solo a vincolare la selezione di nuove date nel datepicker.
+      const dateOriginali = {
+        data_inizio: document.getElementById('data_inizio').value,
+        data_fine: document.getElementById('data_fine').value,
+      };
       toggleUrgenza();
-      // Se è un permesso orario, calcolo la durata iniziale
+      // Ripristino le date originali se sono state cancellate dal min
+      ['data_inizio','data_fine'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value && dateOriginali[id]) {
+          el.value = dateOriginali[id];
+        }
+      });
       if (r.tipo === 'permesso_orario') {
         calcolaDurata();
       }
